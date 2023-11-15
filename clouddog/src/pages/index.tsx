@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import Image from 'next/image';
-
+import Header from '@/components/header';
 
 const blink = keyframes`
   50% { opacity: 0; }
@@ -63,6 +63,7 @@ const CommentBox = styled.input`
   text-align: left;
   justify-content: flex-start;
   padding-left: 1vw; 
+  font-size:1.2vw;
   
   
 
@@ -123,7 +124,6 @@ const PostContainer = styled.div`
 
 const CommentWithTime = styled.div`
   display: flex;
-  justify-content: column;
   flex-wrap:nowrap;
   align-items:flex-end;
   flex-direction: row-reverse;
@@ -168,6 +168,7 @@ export default function Home() {
 
   return (
     <div>
+      <Header/>
       <CloudContainer>
         <Main>
         <GliterImage animate={animate} src="/Gliter 0.png" style={{width:"2.1vw",height:"2.1vw", top:"5%",left:"23%"}}/>
