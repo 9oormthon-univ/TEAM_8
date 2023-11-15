@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import styled, { keyframes, css } from "styled-components";
-import Image from "next/image";
-import Header from "@/components/header";
-import {instance} from "@/apis/instance/axios";
-import { useEffect } from "react";
+import React, { useState } from 'react';
+import styled, { keyframes, css } from 'styled-components';
+import Image from 'next/image';
+import Header from '@/components/header';
+import { instance } from '@/apis/instance/axios';
+import { useEffect } from 'react';
 
 const blink = keyframes`
   50% { opacity: 0; }
@@ -22,7 +22,7 @@ const GliterImage = styled.img<GliterImageProps>`
       ? css`
           ${blink} 1s ease-in-out infinite
         `
-      : "none"};
+      : 'none'};
 `;
 const CloudContainer = styled.div`
   width: 100%;
@@ -147,7 +147,7 @@ interface CommentType {
 export default function Home() {
   const [animate, setAnimate] = useState<boolean>(false);
   const [comments, setComments] = useState<CommentType[]>([]);
-  const [commentInput, setCommentInput] = useState<string>("");
+  const [commentInput, setCommentInput] = useState<string>('');
 
   useEffect(() => {
     // const fetchMessages = async () => {
@@ -165,7 +165,6 @@ export default function Home() {
     //     console.error("메시지를 불러오는 중 오류 발생:", error);
     //   }
     // };
-
     // fetchMessages();
   }, []);
 
@@ -173,11 +172,11 @@ export default function Home() {
     //댓글 추가
     const newComment: CommentType = {
       msgContent: commentInput,
-      msgTime: new Date().toISOString().split('T')[0]
+      msgTime: new Date().toISOString().split('T')[0],
     }; //댓글 시간 구현 부분
 
     setComments([newComment, ...comments]);
-    setCommentInput("");
+    setCommentInput('');
     setAnimate(true);
     setTimeout(() => setAnimate(false), 3000);
 
@@ -200,32 +199,32 @@ export default function Home() {
           <GliterImage
             animate={animate}
             src="/Gliter 0.png"
-            style={{ width: "2.1vw", height: "2.1vw", top: "5%", left: "23%" }}
+            style={{ width: '2.1vw', height: '2.1vw', top: '5%', left: '23%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 2.png"
-            style={{ width: "1.4vw", height: "1.4vw", top: "20%", left: "20%" }}
+            style={{ width: '1.4vw', height: '1.4vw', top: '20%', left: '20%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 3.png"
             style={{
-              width: "1.4vw",
-              height: "1.4vw",
-              top: "10%",
-              right: "44%",
+              width: '1.4vw',
+              height: '1.4vw',
+              top: '10%',
+              right: '44%',
             }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 5.png"
-            style={{ width: "1.8vw", height: "1.8vw", top: "5%", right: "25%" }}
+            style={{ width: '1.8vw', height: '1.8vw', top: '5%', right: '25%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 7.png"
-            style={{ width: "1vw", height: "1vw", top: "2%", right: "24%" }}
+            style={{ width: '1vw', height: '1vw', top: '2%', right: '24%' }}
           />
           <ImageContainer>
             <Image
@@ -239,22 +238,22 @@ export default function Home() {
           <GliterImage
             animate={animate}
             src="/Gliter 3.png"
-            style={{ width: "4vw", height: "4vw", top: "30%", right: "21%" }}
+            style={{ width: '4vw', height: '4vw', top: '30%', right: '21%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 6.png"
-            style={{ width: "2vw", height: "2vw", top: "20%", right: "27%" }}
+            style={{ width: '2vw', height: '2vw', top: '20%', right: '27%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 4.png"
-            style={{ width: "1vw", height: "1vw", top: "80%", left: "25%" }}
+            style={{ width: '1vw', height: '1vw', top: '80%', left: '25%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 5.png"
-            style={{ width: "3.5vw", height: "3.5vw", top: "85%", left: "29%" }}
+            style={{ width: '3.5vw', height: '3.5vw', top: '85%', left: '29%' }}
           />
         </Main>
       </CloudContainer>
