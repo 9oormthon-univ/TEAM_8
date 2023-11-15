@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
+
 
 const HeaderContainer = styled.div`
   margin-top: 1.75vw;
@@ -30,7 +32,7 @@ const Headerstyle = styled.div`
   flex-direction: row;
   justify-content: center;
   width: 6.5vw;
-  
+  cursor:pointer;
 `;
 
 const HeaderP = styled.p`
@@ -41,58 +43,47 @@ const HeaderP = styled.p`
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+  align-items: center;
+
 `;
 
 const StyledLink = styled.a`
-    text-decoration:none;
-
-`
+  text-decoration: none !important;
+  color: inherit;
+ 
+  flex-direction: row;
+  display:flex;
+  align-items: center;
+`;
 
 export default function Header() {
+
+  const router = useRouter();
+
+  const navigateToHome = () => router.push('/');
+  const navigateToArchive = () => router.push('/archive'); 
+  const navigateToCloud = () => router.push('/cloud'); 
+  const navigateToProfile = () => router.push('/profile'); 
+
   return (
     <>
       <HeaderContainer>
         <HeaderNavBar>
-          <Headerstyle>
-            <Link href="/">
-            <a style={{textDecoration:"none",color:"inherit"}}
-              <Image src="/home.png" alt="메인이미지" width={24} height={24} />
-              <HeaderP>Main</HeaderP>
-              </a>
-            </Link>
+          <Headerstyle onClick={navigateToHome}>
+            <Image src="/home.png" alt="메인이미지" width={24} height={24} />
+            <HeaderP>Main</HeaderP>
           </Headerstyle>
-          <Headerstyle>
-            <Link href="/archive">
-              <Image
-                src="/bookmark.png"
-                alt="아카이브이미지"
-                width={24}
-                height={24}
-              />{" "}
-              <HeaderP>Archive</HeaderP>
-            </Link>
+          <Headerstyle onClick={navigateToArchive}>
+            <Image src="/bookmark.png" alt="북마크이미지" width={24} height={24} />
+            <HeaderP>Archive</HeaderP>
           </Headerstyle>
-          <Headerstyle>
-            <Link href="/cloud">
-              <Image
-                src="/cloudimo.png"
-                alt="클라우드이미지"
-                width={24}
-                height={24}
-              />
-              <HeaderP>Cloud</HeaderP>
-            </Link>
+          <Headerstyle onClick={navigateToCloud}>
+            <Image src="/cloudimo.png" alt="클라우드이미지" width={24} height={24} />
+            <HeaderP>Cloud</HeaderP>
           </Headerstyle>
-          <Headerstyle>
-            <Link href="/profile">
-              <Image
-                src="/face.png"
-                alt="프로필이미지"
-                width={24}
-                height={24}
-              />{" "}
-              <HeaderP>Profile</HeaderP>
-            </Link>
+          <Headerstyle onClick={navigateToProfile}>
+            <Image src="/face.png" alt="프로필이미지" width={24} height={24} />
+            <HeaderP>Profile</HeaderP>
           </Headerstyle>
         </HeaderNavBar>
       </HeaderContainer>
