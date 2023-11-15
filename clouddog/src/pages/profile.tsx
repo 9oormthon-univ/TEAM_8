@@ -28,13 +28,13 @@ const ProfileSpace = styled.div`
   flex-direction: row;
 `;
 
-const ProfilePicture = styled.div`
+const ProfilePicture = styled.div<ProfilePictureProps>`
   position: relative;
   width: 21.4vw;
   height: 21.4vw;
   border-radius: 21.4vw;
   border: 1px solid #000;
-  background: #ececec;
+  background: ${(props) => `url(${props.backgroundImage}) no-repeat center/cover`};
   margin-right: 5vw;
 `;
 
@@ -172,6 +172,16 @@ interface ModalProps {
   show: boolean;
 }
 
+interface ModalProfileProps{
+    backgroundImage:string;
+}
+
+interface ProfilePictureProps{
+    backgroundImage:string;
+}
+
+
+
 const Modal = styled.div<ModalProps>`
   position: fixed;
   top: 50%;
@@ -197,45 +207,88 @@ const ModalBackdrop = styled.div`
 `;
 
 const ModalContainer = styled.div`
-  width: 59vw;
+  width: 67.5vw;
   height: 37.35vw;
   background-color: white;
  
   border-radius: 12px;
   display: flex;
-  padding-left:3.85vw;
+  padding-left:5vw;
   padding-right:5vw;
 `;
 
-const ModalProfile= styled.div`
-    width: 21.4vw;
-  height: 21.4vw;
+const ModalProfile = styled.div<ModalProfileProps>`
+  width: 18.75vw;
+  height: 18.75vw;
   border-radius: 21.4vw;
   border: 1px solid #000;
-  background: #ececec;
- 
-`
+  background: ${(props) => `url(${props.backgroundImage}) no-repeat center/cover`};
+  margin-top: 1vw;
+`;
 
 const Modaldiv = styled.div`
     display:flex;
     flex-direction: row;
     width:100%;
     margin-top:4vw;
-    
-    
 `
 
-const ImageOption = styled.img`
-  width: 100px; 
-  height: 100px;
-  border: 2px solid #ddd;
+const ModalProfileContainer = styled.div`
+  display: flex;
+  align-items: center; 
+  justify-content: flex-start; 
+  gap: 2vw; 
+  margin-bottom: 4vw;
+`;
+
+const SmallCircle = styled.div`
+  width: 9vw; 
+  height: 9vw;
   border-radius: 50%;
-  object-fit: cover;
+  border: 1px solid #000; 
+  background: #fff;
   cursor: pointer;
   &:hover {
-    border-color: #aaa; 
+    background: #ececec; 
   }
 `;
+
+const Row= styled.div`
+   display: flex;
+  justify-content: center; 
+  gap: 3vw; 
+`
+
+const ModalContent = styled.div`
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left:3.4165vw;
+    gap:2.275vw;
+`
+
+const SaveButton2Container = styled.div`
+  display: flex;
+  justify-content: flex-end; 
+  align-items: center; 
+  width: 100%; 
+  margin-top:4vw;
+`;
+
+const SaveButton2 = styled.button`
+    width:7.35vw;
+    height:2.5vw;
+    border-radius: 3vw;
+    border: 1px solid  #000;
+background: #FE8F5A;
+color: #FFF;
+
+font-family: Pretendard;
+font-size: 1.2vw;
+font-style: normal;
+font-weight: 600;
+line-height: normal;
+`
 
 function Profiles() {
   const [profileData, setProfileData] = useState<ProfileData>({
@@ -244,6 +297,9 @@ function Profiles() {
     dogName: "",
     dogDescription: "",
   });
+
+  //프로필 이미지 저장 함수
+  const [profileImage, setProfileImage] = useState<string>("/default-profile.png")
 
   //모달 창 관련 로직
   const [isModalOpen, setModalOpen] = useState(false);
@@ -256,22 +312,45 @@ function Profiles() {
     setModalOpen(false);
   };
 
-  const handleImageChange = () => {};
 
   const [selectedImage, setSelectedImage] = useState<string>("");
 
-  const imageOptions = ["/path/to/image1.png", "/path/to/image2.png"]; // 이미지 경로 배열
+  const imageOptions = [
+    "/Dog1.jpeg",
+    "/Dog2.jpeg",
+    "/Dog3.jpeg",
+    "/Dog4.jpeg",
+    "/Dog5.jpeg",
+    "/Dog6.jpeg",
+    "/Dog7.jpeg",
+    "/Dog8.png"
+]; 
 
+    //프로필 이미지 함수 
   const handleImageSelect = (image: string) => {
     setSelectedImage(image);
-    setModalOpen(false); // 이미지 선택 후 모달 닫기
+  };
+
+  const handleProfileImageSave = () => {
+    if (selectedImage) {
+      setProfileImage(selectedImage); 
+      localStorage.setItem("profileImage", selectedImage); // 로컬 스토리지에 저장
+      setModalOpen(false);
+      alert('프로필 이미지가 저장되었습니다.');
+    }
   };
 
   //수정하기 저장하기 관련 로직
-  const [isFormEditable, setFormEditable] = useState(true); //폼 활성화, 비활성화
+  const [isFormEditable, setFormEditable] = useState(false); //폼 활성화, 비활성화
 
   useEffect(() => {
     loadProfileData();
+    const storedProfileImage = localStorage.getItem("profileImage");
+    if (storedProfileImage) {
+      setProfileImage(storedProfileImage);
+    }
+    const isEditable = localStorage.getItem("isFormEditable");
+    setFormEditable(isEditable !== "false");
   }, []);
 
   const loadProfileData = () => {
@@ -290,7 +369,6 @@ function Profiles() {
 
   const handleEdit = () => {
     setFormEditable(true);
-    loadProfileData();
   };
 
   const handleSave = () => {
@@ -304,8 +382,9 @@ function Profiles() {
       return;
     }
     localStorage.setItem("profileData", JSON.stringify(profileData));
-    alert("저장되었습니다.");
     setFormEditable(false);
+    alert("저장되었습니다.");
+    
   };
   return (
     <>
@@ -318,7 +397,7 @@ function Profiles() {
         </ProfileText>
 
         <ProfileSpace>
-          <ProfilePicture>
+          <ProfilePicture backgroundImage={profileImage}>
             <EditIcon src="/edit.png" onClick={handleEditIconClick} />
           </ProfilePicture>
           <ProfileInput>
@@ -363,15 +442,30 @@ function Profiles() {
           <ModalBackdrop onClick={handleModalClose}>
             <ModalContainer onClick={(e) => e.stopPropagation()}>
                 <Modaldiv>
-                <ModalProfile/>
-              {/* {imageOptions.map((image, index) => (
-                <ImageOption
-                  key={index}
-                  src={image}
-                  alt={`Profile Option ${index + 1}`}
-                  onClick={() => handleImageSelect(image)}
-                />
-              ))} */}
+                <ModalProfile backgroundImage={selectedImage || "/default-profile.png"}/>
+                <ModalContent>
+                <Row>
+            {imageOptions.slice(0, 4).map((image, index) => (
+              <SmallCircle
+                key={index}
+                style={{ backgroundImage: `url(${image})` }}
+                onClick={() => handleImageSelect(image)}
+              />
+            ))}
+          </Row>
+          <Row>
+            {imageOptions.slice(4, 8).map((image, index) => (
+              <SmallCircle
+                key={index}
+                style={{ backgroundImage: `url(${image})` }}
+                onClick={() => handleImageSelect(image)}
+              />
+            ))}
+          </Row>
+          <SaveButton2Container>
+          <SaveButton2 onClick={handleProfileImageSave}>저장하기</SaveButton2>
+        </SaveButton2Container>
+          </ModalContent>
               </Modaldiv>
             </ModalContainer>
           </ModalBackdrop>
