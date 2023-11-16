@@ -24,6 +24,7 @@ const Login = () => {
     const accessToken = await auth.currentUser?.getIdToken().then((token) => {
       localStorage.setItem('accessToken', token);
       localStorage.setItem('userName', auth.currentUser?.displayName as string);
+      localStorage.setItem('userEmail', auth.currentUser?.email as string);
     });
 
     // 로그인 후 페이지 이동
