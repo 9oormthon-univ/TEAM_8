@@ -2,6 +2,7 @@ import styled from "styled-components";
 import Header from "../components/header";
 import { useState } from "react";
 import { useEffect } from "react";
+import { instance } from "@/apis/instance/axios";
 
 const Home = styled.div`
   display: flex;
@@ -319,10 +320,11 @@ height: 36px;
 `;
 
 interface ProfileData { //프로필 입력하는 칸 데이터들
-  nickname: string;
-  recoveryPeriod: string;
-  dogName: string;
-  dogDescription: string;
+  nickName: string;
+  petNumber: number;
+  petName: string;
+  petDescription: string;
+  mindCount: number;
 }
 
 //모달관련 보여줄지 말지 결정
@@ -348,11 +350,15 @@ function Profiles() {
   };
 
   const [profileData, setProfileData] = useState<ProfileData>({//input 칸에 들어가는 데이터들  저장
-    nickname: "",
-    recoveryPeriod: "",
-    dogName: "",
-    dogDescription: "",
+    nickName: "",
+    petNumber: 0,
+    petName: "",
+    petDescription: "",
+    mindCount: 0,
   });
+
+  const [petImage, setPetImage]=useState("");
+
 
   //프로필 이미지 저장 함수
   const [profileImage, setProfileImage] = useState<string>(//프로필 이미지 url 
@@ -382,8 +388,12 @@ function Profiles() {
   ];
 
   //프로필 이미지 함수
-  const handleImageSelect = (image: string) => {
+  const handleImageSelect = (image: string, index: number) => {
     setSelectedImage(image);
+    setProfileData(prevData => ({
+      ...prevData,
+      petNumber: index + 1 // 인덱스에 1을 더해 petNumber 설정
+    }));
   };
 
  
@@ -391,7 +401,7 @@ function Profiles() {
   const [isFormEditable, setFormEditable] = useState(false); //폼 활성화, 비활성화
 
   useEffect(() => {
-    loadProfileData();
+    // loadProfileData();
     const storedProfileImage = localStorage.getItem("profileImage");
     if (storedProfileImage) {
       setProfileImage(storedProfileImage);
@@ -404,7 +414,7 @@ function Profiles() {
     setFormEditable(isEditable !== "false");
   }, []);
   
-  const handleProfileImageSave = () => {//프로필 이미지 로컬 스토리지에 저장 후 불러옴 
+  const handleProfileImageSave = () => {//프로필 이미지 로컬 스토리지
     if (selectedImage) {
       setProfileImage(selectedImage);
       localStorage.setItem("profileImage", selectedImage);
@@ -415,12 +425,12 @@ function Profiles() {
   };
 
 
-  const loadProfileData = () => {
-    const storedData = localStorage.getItem("profileData");//프로필 데이터 저장 
-    if (storedData) {//json으로 변환
-      setProfileData(JSON.parse(storedData));
-    }
-  };
+  // const loadProfileData = () => {
+  //   const storedData = localStorage.getItem("profileData");//프로필 데이터 저장 
+  //   if (storedData) {//json으로 변환
+  //     setProfileData(JSON.parse(storedData));
+  //   }
+  // };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -433,20 +443,38 @@ function Profiles() {
     setFormEditable(true);
   };
 
-  const handleSave = () => {//저장함수
+  const handleSave = async () => {
+    // 모든 필드가 채워져 있는지 확인
     if (
-      !profileData.nickname ||
-      !profileData.recoveryPeriod ||
-      !profileData.dogName ||
-      !profileData.dogDescription
-    ) {//만약 다 칸을 안채웠을때
+      !profileData.nickName ||
+      profileData.petNumber === 0 ||
+      !profileData.petName ||
+      !profileData.petDescription ||
+      profileData.mindCount === 0  
+    ) {
       alert("모든 칸을 입력해주세요.");
-      return;
+      return; // 조건이 만족하지 않으면 여기에서 함수 실행을 중단
     }
-    localStorage.setItem("profileData", JSON.stringify(profileData));//로컬스토리지에 저장
-    setFormEditable(false);//폼 수정 불가능
-    alert("저장되었습니다.");
+  
+    try {
+      const memberId = 1; // 예시 memberId
+      await instance.put(`/api/v1/${memberId}`, {
+        nickName: profileData.nickName,
+        petNumber: profileData.petNumber,
+        petName: profileData.petName,
+        petDescription: profileData.petDescription,
+        mindCount: profileData.mindCount
+      });
+      alert("프로필이 저장되었습니다.");
+    } catch (error) {
+      console.error("프로필 저장 중 오류 발생:", error);
+    }
+  
+    // 로컬 스토리지에 프로필 데이터 저장하는 부분이 필요하다면 여기에 추가
+    // localStorage.setItem("profileData", JSON.stringify(profileData));
+    setFormEditable(false);
   };
+
   return (
     <>
       <Header />
@@ -464,17 +492,17 @@ function Profiles() {
           <ProfileInput>
             <UserFirst>
               <UserNickname
-                name="nickname"
+                name="nickName"
                 placeholder="사용자 닉네임"
-                value={profileData.nickname}
+                value={profileData.nickName}
                 onChange={handleInputChange}
                 disabled={!isFormEditable}
               />
               <UserMindContainer>
                 <UserMind
-                  name="recoveryPeriod"
+                  name="mindCount"
                   placeholder="마음 회복 기간"
-                  value={profileData.recoveryPeriod}
+                  value={profileData.mindCount}
                   onChange={handleInputChange}
                   disabled={!isFormEditable}
                 />
@@ -483,16 +511,16 @@ function Profiles() {
               </UserMindContainer>
             </UserFirst>
             <DogName
-              name="dogName"
+              name="petName"
               placeholder="반려견 이름"
-              value={profileData.dogName}
+              value={profileData.petName}
               onChange={handleInputChange}
               disabled={!isFormEditable}
             />
             <DogEx
-              name="dogDescription"
+              name="petDescription"
               placeholder="반려견 설명"
-              value={profileData.dogDescription}
+              value={profileData.petDescription}
               onChange={handleInputChange}
               disabled={!isFormEditable}
             />
@@ -512,24 +540,25 @@ function Profiles() {
                   backgroundImage={selectedImage || "/default-profile.png"}
                 />
                 <ModalContent>
-                  <Row>
-                    {imageOptions.slice(0, 4).map((image, index) => (
-                      <SmallCircle
-                        key={index}
-                        style={{ backgroundImage: `url(${image})` }}
-                        onClick={() => handleImageSelect(image)}
+                <Row>
+                  {imageOptions.slice(0, 4).map((image, index) => (
+                    <SmallCircle
+                      key={index}
+                      style={{ backgroundImage: `url(${image})` }}
+                      onClick={() => handleImageSelect(image, index)}
                       />
-                    ))}
-                  </Row>
-                  <Row>
-                    {imageOptions.slice(4, 8).map((image, index) => (
-                      <SmallCircle
-                        key={index}
-                        style={{ backgroundImage: `url(${image})` }}
-                        onClick={() => handleImageSelect(image)}
-                      />
-                    ))}
-                  </Row>
+                      ))}
+                </Row>
+                <Row>
+                  {imageOptions.slice(4, 8).map((image, index) => (
+                   <SmallCircle
+                     key={index}
+                     style={{ backgroundImage: `url(${image})` }}
+                      onClick={() => handleImageSelect(image, index + 4)} // 4를 더해줌
+                    />
+                   ))}
+                </Row>
+
                   <SaveButton2Container>
                     <SaveButton2 onClick={handleProfileImageSave}>
                       저장하기
