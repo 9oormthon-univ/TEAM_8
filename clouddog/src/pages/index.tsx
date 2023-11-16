@@ -151,50 +151,48 @@ export default function Home() {
   const [commentInput, setCommentInput] = useState<string>("");
 
   useEffect(() => {
-    // const fetchMessages = async () => {
-    //   try {
-    //     const response = await instance.get("/v1/messages");
-    //     console.log(response.data);
-    //     setComments(
-    //       response.data.map((msg: CommentType) => ({
-    //         id: msg.msgId,
-    //         text: msg.msgContent,
-    //         time: msg.msgTime,
-    //       }))
-    //     );
-    //   } catch (error) {
-    //     console.error("메시지를 불러오는 중 오류 발생:", error);
-    //   }
-    // };
+    const fetchMessages = async () => {
+      try {
+        const response = await instance.get("/v1/messages");
+        console.log(response.data);
+        setComments(
+          response.data.map((msg: CommentType) => ({
+            id: msg.msgId,
+            text: msg.msgContent,
+            time: msg.msgTime,
+          }))
+        );
+      } catch (error) {
+        console.error("메시지를 불러오는 중 오류 발생:", error);
+      }
+    };
 
-    // fetchMessages();
+    fetchMessages();
   }, []);
 
-  const handleAddComment = () => {
-
-    if (!commentInput.trim()) {//댓글이 비어있는 경우 아무것도 리턴 x
+  const handleAddComment = async () => {
+    if (!commentInput.trim()) {
+      alert("댓글 내용을 입력해주세요.");
       return;
     }
-    //댓글 추가
-    const newComment: CommentType = {
+  
+    const newComment = {
       msgContent: commentInput,
-      msgTime: new Date().toISOString().split('T')[0]
-    }; //댓글 시간 구현 부분
-
-    setComments([newComment, ...comments]);
-    setCommentInput("");
-    setAnimate(true);
-    setTimeout(() => setAnimate(false), 3000);
-
-    // try {
-    //   instance.post("v1/messages", {
-    //     msgContent: newComment.msgContent,
-    //     msgTime: newComment.msgTime,
-    //   });
-    //   console.log("댓글 저장 완료");
-    // } catch (error) {
-    //   console.error("오류 발생:", error);
-    // }
+      msgTime: new Date().toISOString().split('T')[0],
+    };
+  
+    try {
+      const response = await instance.post('api/v1/messages', newComment);
+      console.log("댓글 저장 완료", response.data);
+  
+      // 새 댓글을 댓글 목록에 추가
+      setComments([newComment, ...comments]);
+      setCommentInput("");
+      setAnimate(true);
+      setTimeout(() => setAnimate(false), 3000);
+    } catch (error) {
+      console.error("오류 발생:", error);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
