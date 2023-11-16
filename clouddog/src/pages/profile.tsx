@@ -1,7 +1,7 @@
-import styled from 'styled-components';
-import Header from '../components/header';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import styled from "styled-components";
+import Header from "../components/header";
+import { useState } from "react";
+import { useEffect } from "react";
 
 const Home = styled.div`
   display: flex;
@@ -61,7 +61,7 @@ const ProfileInput = styled.div`
 
 const UserNickname = styled.input`
   display: flex;
-  width: 17.7vw;
+  width: 17.68vw;
   height: 1.2vw;
   padding: 1.05vw 1.15vw;
   align-items: center;
@@ -76,21 +76,65 @@ const UserNickname = styled.input`
   font-weight: 400;
   line-height: normal;
 `;
+
+const UserMindIcon = styled.img`
+  width: 1.2vw;
+  height: auto;
+  margin-right: 1.05vw;
+`;
 const UserMind = styled.input`
   display: flex;
-  width: 17.7vw;
+  width: 17.68vw;
   height: 1.2vw;
-  padding: 1.05vw 1.15vw;
+  padding: 1.05vw 1.15vw 1.05vw 1.15vw;
   align-items: center;
-  border-radius: 0.5vw;
+  border-radius: 0.5vw; 
   border: 1px solid #000;
-  background: #f3f3f3;
+  background: #f3f3f3 url("/info.png") no-repeat right 1.8vw center;
+  background-size: 1.8vw 1.8vw;
 
   font-size: 1.15vw;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+
+  &:disabled {
+    background: #f3f3f3 url("/info.png") no-repeat right 1.15vw center;
+    background-size: 1.8vw 1.8vw;
+  }
 `;
+
+const Tooltip = styled.div`
+  visibility: hidden;
+  background-color: #FFF;
+  color: black; 
+  width: 10.8vw;
+  border-radius: 0.5vw;
+  border: 3px solid #FE8F5A;
+  padding: 1.3vw 1vw 1.2vw 1vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align:center;
+  font-size:1vw;
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 58%;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+`;
+
+const UserMindContainer = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative; 
+  &:hover ${Tooltip} {
+    visibility: visible; 
+    opacity: 1;
+  }
+`;
+
 const DogName = styled.input`
   margin-top: 1.05vw;
   padding: 1.05vw 1.15vw;
@@ -161,26 +205,6 @@ const SaveButton = styled.div`
   cursor: pointer;
 `;
 
-interface ProfileData {
-  nickname: string;
-  recoveryPeriod: string;
-  dogName: string;
-  dogDescription: string;
-}
-
-//모달관련
-interface ModalProps {
-  show: boolean;
-}
-
-interface ModalProfileProps {
-  backgroundImage: string;
-}
-
-interface ProfilePictureProps {
-  backgroundImage: string;
-}
-
 const Modal = styled.div<ModalProps>`
   position: fixed;
   top: 50%;
@@ -190,7 +214,7 @@ const Modal = styled.div<ModalProps>`
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.25);
-  display: ${(props) => (props.show ? 'block' : 'none')};
+  display: ${(props) => (props.show ? "block" : "none")};
 `;
 
 const ModalBackdrop = styled.div`
@@ -209,11 +233,11 @@ const ModalContainer = styled.div`
   width: 67.5vw;
   height: 37.35vw;
   background-color: white;
-
   border-radius: 12px;
   display: flex;
   padding-left: 5vw;
   padding-right: 5vw;
+  position:relative;
 `;
 
 const ModalProfile = styled.div<ModalProfileProps>`
@@ -233,13 +257,6 @@ const Modaldiv = styled.div`
   margin-top: 4vw;
 `;
 
-const ModalProfileContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 2vw;
-  margin-bottom: 4vw;
-`;
 
 const SmallCircle = styled.div`
   width: 9vw;
@@ -290,41 +307,78 @@ const SaveButton2 = styled.button`
   line-height: normal;
 `;
 
+const CloseButton = styled.div`
+  position: absolute;
+  width: 36px;
+height: 36px;
+  top: 15px;
+  right: 2px;
+  cursor: pointer;
+  font-size: 1.5vw;
+  color: #000;
+`;
+
+interface ProfileData { //프로필 입력하는 칸 데이터들
+  nickname: string;
+  recoveryPeriod: string;
+  dogName: string;
+  dogDescription: string;
+}
+
+//모달관련 보여줄지 말지 결정
+interface ModalProps {
+  show: boolean;
+}
+
+//모달창에서 이미지 선택한거 불러오기
+interface ModalProfileProps {
+  backgroundImage: string;
+}
+
+//프로필 창 프로필 이미지
+interface ProfilePictureProps {
+  backgroundImage: string;
+}
+
+
 function Profiles() {
-  const [profileData, setProfileData] = useState<ProfileData>({
-    nickname: '',
-    recoveryPeriod: '',
-    dogName: '',
-    dogDescription: '',
+
+  const handleCloseButtonClick=()=>{//모달 x 버튼
+    setModalOpen(false);
+  };
+
+  const [profileData, setProfileData] = useState<ProfileData>({//input 칸에 들어가는 데이터들  저장
+    nickname: "",
+    recoveryPeriod: "",
+    dogName: "",
+    dogDescription: "",
   });
 
   //프로필 이미지 저장 함수
-  const [profileImage, setProfileImage] = useState<string>(
-    '/default-profile.png'
+  const [profileImage, setProfileImage] = useState<string>(//프로필 이미지 url 
+    "/default-profile.png"
   );
 
-  //모달 창 관련 로직
+  //모달 창이 열려있는지 여부
   const [isModalOpen, setModalOpen] = useState(false);
 
+  //연필 아이콘 클릭시 modal 창 열림
   const handleEditIconClick = () => {
     setModalOpen(true);
   };
 
-  const handleModalClose = () => {
-    setModalOpen(false);
-  };
 
-  const [selectedImage, setSelectedImage] = useState<string>('');
+  const [selectedImage, setSelectedImage] = useState<string>("");
 
   const imageOptions = [
-    '/Dog1.jpeg',
-    '/Dog2.jpeg',
-    '/Dog3.jpeg',
-    '/Dog4.jpeg',
-    '/Dog5.jpeg',
-    '/Dog6.jpeg',
-    '/Dog7.jpeg',
-    '/Dog8.png',
+    "/Dog1.jpeg",
+    "/Dog2.jpeg",
+    "/Dog3.jpeg",
+    "/Dog4.jpeg",
+    "/Dog5.jpeg",
+    "/Dog6.jpeg",
+    "/Dog7.jpeg",
+    "/Dog8.png",
   ];
 
   //프로필 이미지 함수
@@ -332,31 +386,38 @@ function Profiles() {
     setSelectedImage(image);
   };
 
-  const handleProfileImageSave = () => {
-    if (selectedImage) {
-      setProfileImage(selectedImage);
-      localStorage.setItem('profileImage', selectedImage); // 로컬 스토리지에 저장
-      setModalOpen(false);
-      alert('프로필 이미지가 저장되었습니다.');
-    }
-  };
-
+ 
   //수정하기 저장하기 관련 로직
   const [isFormEditable, setFormEditable] = useState(false); //폼 활성화, 비활성화
 
   useEffect(() => {
     loadProfileData();
-    const storedProfileImage = localStorage.getItem('profileImage');
+    const storedProfileImage = localStorage.getItem("profileImage");
     if (storedProfileImage) {
       setProfileImage(storedProfileImage);
     }
-    const isEditable = localStorage.getItem('isFormEditable');
-    setFormEditable(isEditable !== 'false');
+    const storedSelectedImage = localStorage.getItem("selectedImage"); // 추가된 부분
+    if (storedSelectedImage) {
+      setSelectedImage(storedSelectedImage);
+    }
+    const isEditable = localStorage.getItem("isFormEditable");
+    setFormEditable(isEditable !== "false");
   }, []);
+  
+  const handleProfileImageSave = () => {//프로필 이미지 로컬 스토리지에 저장 후 불러옴 
+    if (selectedImage) {
+      setProfileImage(selectedImage);
+      localStorage.setItem("profileImage", selectedImage);
+      localStorage.setItem("selectedImage", selectedImage); 
+      setModalOpen(false);
+      alert("프로필 이미지가 저장되었습니다.");
+    }
+  };
+
 
   const loadProfileData = () => {
-    const storedData = localStorage.getItem('profileData');
-    if (storedData) {
+    const storedData = localStorage.getItem("profileData");//프로필 데이터 저장 
+    if (storedData) {//json으로 변환
       setProfileData(JSON.parse(storedData));
     }
   };
@@ -368,23 +429,23 @@ function Profiles() {
     setProfileData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleEdit = () => {
+  const handleEdit = () => {//수정함수
     setFormEditable(true);
   };
 
-  const handleSave = () => {
+  const handleSave = () => {//저장함수
     if (
       !profileData.nickname ||
       !profileData.recoveryPeriod ||
       !profileData.dogName ||
       !profileData.dogDescription
-    ) {
-      alert('모든 칸을 입력해주세요.');
+    ) {//만약 다 칸을 안채웠을때
+      alert("모든 칸을 입력해주세요.");
       return;
     }
-    localStorage.setItem('profileData', JSON.stringify(profileData));
-    setFormEditable(false);
-    alert('저장되었습니다.');
+    localStorage.setItem("profileData", JSON.stringify(profileData));//로컬스토리지에 저장
+    setFormEditable(false);//폼 수정 불가능
+    alert("저장되었습니다.");
   };
   return (
     <>
@@ -409,13 +470,17 @@ function Profiles() {
                 onChange={handleInputChange}
                 disabled={!isFormEditable}
               />
-              <UserMind
-                name="recoveryPeriod"
-                placeholder="마음 회복 기간"
-                value={profileData.recoveryPeriod}
-                onChange={handleInputChange}
-                disabled={!isFormEditable}
-              />
+              <UserMindContainer>
+                <UserMind
+                  name="recoveryPeriod"
+                  placeholder="마음 회복 기간"
+                  value={profileData.recoveryPeriod}
+                  onChange={handleInputChange}
+                  disabled={!isFormEditable}
+                />
+                <Tooltip>마음 회복 기간은<br/>
+                2~3개월을 추천해요!</Tooltip>
+              </UserMindContainer>
             </UserFirst>
             <DogName
               name="dogName"
@@ -439,11 +504,12 @@ function Profiles() {
           </ProfileInput>
         </ProfileSpace>
         {isModalOpen && (
-          <ModalBackdrop onClick={handleModalClose}>
+          <ModalBackdrop>
             <ModalContainer onClick={(e) => e.stopPropagation()}>
               <Modaldiv>
+              <CloseButton onClick={handleCloseButtonClick}>X</CloseButton>
                 <ModalProfile
-                  backgroundImage={selectedImage || '/default-profile.png'}
+                  backgroundImage={selectedImage || "/default-profile.png"}
                 />
                 <ModalContent>
                   <Row>
