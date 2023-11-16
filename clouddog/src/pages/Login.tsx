@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import Image from 'next/image';
 import BackImg from '@/styles/login.module.css';
+import LocalStorage from '@/constants/LocalStorage';
 import { auth } from '@/apis/instance/firebase';
 import { useRouter } from 'next/router';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
@@ -22,9 +23,9 @@ const Login = () => {
 
     // accessToken 넣기
     const accessToken = await auth.currentUser?.getIdToken().then((token) => {
-      localStorage.setItem('accessToken', token);
-      localStorage.setItem('userName', auth.currentUser?.displayName as string);
-      localStorage.setItem('userEmail', auth.currentUser?.email as string);
+      LocalStorage.setItem('accessToken', token);
+      LocalStorage.setItem('userName', auth.currentUser?.displayName as string);
+      LocalStorage.setItem('userEmail', auth.currentUser?.email as string);
     });
 
     // 로그인 후 페이지 이동
