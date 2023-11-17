@@ -1,7 +1,7 @@
 import axios from 'axios';
-import LocalStorage from '@/constants/LocalStorage';
+import SessionStorage from '@/constants/SessionStorage';
 
-const accessToken = LocalStorage.getItem('accessToken');
+const accessToken = SessionStorage.getItem('accessToken');
 
 export const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,

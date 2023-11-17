@@ -161,6 +161,9 @@ export default function Home() {
 
   const router = useRouter();
 
+  const userId = SessionStorage.getItem('userId');
+  console.log('dlrjdksla?', userId);
+
   useEffect(() => {
     // 로그인이 되어있지 않으면 로그인 페이지로 이동
     if (SessionStorage.getItem('accessToken') === null) {
@@ -169,7 +172,9 @@ export default function Home() {
 
     const fetchUserInfo = async () => {
       try {
-        const response = await instance.get('/api/v1/my-info');
+        const response = await instance.get('/api/v1/my-info', {
+          params: { uid: userId },
+        });
         const data = response.data;
 
         setMemberId(data.memberId); // memberId 상태 업데이트
@@ -186,7 +191,7 @@ export default function Home() {
           data.petDescription === null &&
           data.mindCount === 0
         ) {
-          router.push('/profile-view'); // 프로필 뷰 페이지 경로
+          router.push('/profile'); // 프로필 뷰 페이지 경로
         }
       } catch (error) {
         console.error('사용자 정보를 가져오는 중 오류 발생:', error);

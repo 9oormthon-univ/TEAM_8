@@ -5,6 +5,7 @@ import SessionStorage from '@/constants/SessionStorage';
 import { auth } from '@/apis/instance/firebase';
 import { useRouter } from 'next/router';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Session } from 'inspector';
 
 const Login = () => {
   // 라우터
@@ -29,6 +30,7 @@ const Login = () => {
         auth.currentUser?.displayName as string
       );
       SessionStorage.setItem('userEmail', auth.currentUser?.email as string);
+      SessionStorage.setItem('userId', auth.currentUser?.uid as string);
     });
 
     // 로그인 후 페이지 이동
