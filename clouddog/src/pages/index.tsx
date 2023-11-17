@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import styled, { keyframes, css } from "styled-components";
-import Image from "next/image";
-import Header from "@/components/header";
-import {instance} from "@/apis/instance/axios";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+import React, { useState } from 'react';
+import styled, { keyframes, css } from 'styled-components';
+import Image from 'next/image';
+import Header from '@/components/header';
+import { instance } from '@/apis/instance/axios';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import SessionStorage from '@/constants/SessionStorage';
 
 const blink = keyframes`
   50% { opacity: 0; }
@@ -23,7 +24,7 @@ const GliterImage = styled.img<GliterImageProps>`
       ? css`
           ${blink} 1s ease-in-out infinite
         `
-      : "none"};
+      : 'none'};
 `;
 const CloudContainer = styled.div`
   width: 100%;
@@ -66,7 +67,7 @@ const CommentBox = styled.input`
   font-size: 1.2vw;
 
   &::placeholder {
-    color: #4E4E4E;
+    color: #4e4e4e;
     font-family: Pretendard;
     font-size: 1.2vw;
     font-style: normal;
@@ -104,7 +105,6 @@ const Comment = styled.div`
   overflow-wrap: break-word;
   text-align: left;
 `;
-
 
 const PostContainer = styled.div`
   width: 87%;
@@ -147,7 +147,6 @@ const CommentIcon = styled.img`
   height: 2.1vw;
 `;
 
-
 interface CommentType {
   msgContent: string;
   msgTime: string;
@@ -157,22 +156,42 @@ interface CommentType {
 export default function Home() {
   const [animate, setAnimate] = useState<boolean>(false);
   const [comments, setComments] = useState<CommentType[]>([]);
-  const [commentInput, setCommentInput] = useState<string>("");
+  const [commentInput, setCommentInput] = useState<string>('');
   const [memberId, setMemberId] = useState(null);
 
-  const router  = useRouter();
+  const router = useRouter();
+
+  const userId = SessionStorage.getItem('userId');
+  console.log('dlrjdksla?', userId);
 
   useEffect(() => {
+    // 로그인이 되어있지 않으면 로그인 페이지로 이동
+    if (SessionStorage.getItem('accessToken') === null) {
+      router.push('/Login');
+    }
+
     const fetchUserInfo = async () => {
       try {
-        const response = await instance.get('/api/v1/my-info');
+        const response = await instance.get('/api/v1/my-info', {
+          params: { uid: userId },
+        });
         const data = response.data;
 
         setMemberId(data.memberId); // memberId 상태 업데이트
+        SessionStorage.setItem('memberId', data.memberId); // memberId 세션 스토리지에 저장
+        SessionStorage.setItem('petNumber', data.petNumber);
+        SessionStorage.setItem('petName', data.petName);
+        SessionStorage.setItem('petDescription', data.petDescription);
+        SessionStorage.setItem('mindCount', data.mindCount);
 
         // 사용자의 반려동물 정보가 기본값일 경우 프로필 뷰로 이동
-        if (data.petNumber === 0 && data.petName === null && data.petDescription === null && data.mindCount === 0) {
-          router.push('/profile-view'); // 프로필 뷰 페이지 경로
+        if (
+          data.petNumber === 0 &&
+          data.petName === null &&
+          data.petDescription === null &&
+          data.mindCount === 0
+        ) {
+          router.push('/profile'); // 프로필 뷰 페이지 경로
         }
       } catch (error) {
         console.error('사용자 정보를 가져오는 중 오류 발생:', error);
@@ -185,7 +204,7 @@ export default function Home() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await instance.get("/api/v1/messages");
+        const response = await instance.get('/api/v1/messages');
         console.log(response.data);
         setComments(
           response.data.map((msg: CommentType) => ({
@@ -195,13 +214,11 @@ export default function Home() {
           }))
         );
       } catch (error) {
-        console.error("메시지를 불러오는 중 오류 발생:", error);
+        console.error('메시지를 불러오는 중 오류 발생:', error);
       }
     };
     fetchMessages();
-  }, []); 
-
-
+  }, []);
 
   //수정로직
   const handleEditComment = async (commentId: number) => {
@@ -209,89 +226,85 @@ export default function Home() {
     if (editedContent !== null) {
       try {
         const response = await instance.patch(`/api/v1/messages/${commentId}`, {
-          memberId: 1, 
-          msgContent: editedContent
+          memberId: 1,
+          msgContent: editedContent,
         });
-  
+
         // 여기에서 상태를 업데이트하여 UI에 반영
-        setComments(currentComments =>
-          currentComments.map(comment =>
+        setComments((currentComments) =>
+          currentComments.map((comment) =>
             comment.msgId === commentId
               ? { ...comment, msgContent: editedContent }
               : comment
           )
         );
-  
+
         console.log('Edited Comment:', response.data);
-        alert("댓글이 수정되었습니다.");
+        alert('댓글이 수정되었습니다.');
       } catch (error) {
         console.error('Error editing comment:', error);
-        alert("댓글 수정에 실패했습니다.");
+        alert('댓글 수정에 실패했습니다.');
       }
     }
   };
-  
+
   //삭제로직
   const handleDeleteComment = async (commentId: number) => {
-    if (window.confirm("정말 삭제하시겠습니까?")) {
+    if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-       
         await instance.delete(`/api/v1/messages/${commentId}`);
-  
+
         // 로컬 상태에서도 해당 댓글 제거
-        setComments(currentComments =>
-          currentComments.filter(comment => comment.msgId !== commentId)
+        setComments((currentComments) =>
+          currentComments.filter((comment) => comment.msgId !== commentId)
         );
-        
-        alert("댓글이 삭제되었습니다.");
+
+        alert('댓글이 삭제되었습니다.');
       } catch (error) {
-        console.error("댓글 삭제 중 오류 발생:", error);
-        alert("댓글 삭제에 실패했습니다.");
+        console.error('댓글 삭제 중 오류 발생:', error);
+        alert('댓글 삭제에 실패했습니다.');
       }
     }
   };
-  
-  
 
   const handleAddComment = async () => {
     if (!commentInput.trim()) {
-      alert("댓글 내용을 입력해주세요.");
+      alert('댓글 내용을 입력해주세요.');
       return;
     }
 
-    console.log("댓글 생성");
-  
+    console.log('댓글 생성');
+
     const newComment = {
       msgContent: commentInput,
-      msgTime: new Date().toISOString().split('T')[0], 
+      msgTime: new Date().toISOString().split('T')[0],
       // msgId 필드는 서버에서 생성되는 값이므로 생략하거나 임시 값을 할당합니다.
-      msgId: comments.length + 1, 
+      msgId: comments.length + 1,
     };
-  
+
     // try {
     //   const memberId = 1; // 현재 로그인한 사용자의 ID를 가져와야 합니다.
     //   const newComment = {
     //     memberId: memberId,
     //     msgContent: commentInput,
     //   };
-  
+
     //   const response = await instance.post('/api/v1/messages', newComment);
     //   console.log("댓글 저장 완료", response.data);
-  
+
     //   const addedComment = {
     //     ...newComment,
     //     msgId: response.data.msgId,
     //     msgTime: response.data.msgTime || new Date().toISOString(),
     //   };
-  
-      setComments([newComment, ...comments]);
-      setCommentInput("");
-      setAnimate(true);
-      setTimeout(() => setAnimate(false), 3000);
+
+    setComments([newComment, ...comments]);
+    setCommentInput('');
+    setAnimate(true);
+    setTimeout(() => setAnimate(false), 3000);
     // } catch (error) {
     //   console.error("댓글 저장 중 오류 발생:", error);
     // }
-  
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -310,32 +323,32 @@ export default function Home() {
           <GliterImage
             animate={animate}
             src="/Gliter 0.png"
-            style={{ width: "2.1vw", height: "2.1vw", top: "5%", left: "23%" }}
+            style={{ width: '2.1vw', height: '2.1vw', top: '5%', left: '23%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 2.png"
-            style={{ width: "1.4vw", height: "1.4vw", top: "20%", left: "20%" }}
+            style={{ width: '1.4vw', height: '1.4vw', top: '20%', left: '20%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 3.png"
             style={{
-              width: "1.4vw",
-              height: "1.4vw",
-              top: "10%",
-              right: "44%",
+              width: '1.4vw',
+              height: '1.4vw',
+              top: '10%',
+              right: '44%',
             }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 5.png"
-            style={{ width: "1.8vw", height: "1.8vw", top: "5%", right: "25%" }}
+            style={{ width: '1.8vw', height: '1.8vw', top: '5%', right: '25%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 7.png"
-            style={{ width: "1vw", height: "1vw", top: "2%", right: "24%" }}
+            style={{ width: '1vw', height: '1vw', top: '2%', right: '24%' }}
           />
           <ImageContainer>
             <Image
@@ -349,22 +362,22 @@ export default function Home() {
           <GliterImage
             animate={animate}
             src="/Gliter 3.png"
-            style={{ width: "4vw", height: "4vw", top: "30%", right: "21%" }}
+            style={{ width: '4vw', height: '4vw', top: '30%', right: '21%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 6.png"
-            style={{ width: "2vw", height: "2vw", top: "20%", right: "27%" }}
+            style={{ width: '2vw', height: '2vw', top: '20%', right: '27%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 4.png"
-            style={{ width: "1vw", height: "1vw", top: "80%", left: "25%" }}
+            style={{ width: '1vw', height: '1vw', top: '80%', left: '25%' }}
           />
           <GliterImage
             animate={animate}
             src="/Gliter 5.png"
-            style={{ width: "3.5vw", height: "3.5vw", top: "85%", left: "29%" }}
+            style={{ width: '3.5vw', height: '3.5vw', top: '85%', left: '29%' }}
           />
         </Main>
       </CloudContainer>
@@ -388,19 +401,20 @@ export default function Home() {
         <PostContainer>
           {comments.map((comment, index) => (
             <CommentWithTime key={index}>
-              <Comment>{comment.msgContent}
-              <CommentIcons>
-            <CommentIcon
-              src="/pencil.png"
-              alt="Edit"
-              onClick={() => handleEditComment(comment.msgId)}
-            />
-            <CommentIcon
-              src="/trash.png"
-              alt="Delete"
-              onClick={() => handleDeleteComment(comment.msgId)}
-            />
-          </CommentIcons>
+              <Comment>
+                {comment.msgContent}
+                <CommentIcons>
+                  <CommentIcon
+                    src="/pencil.png"
+                    alt="Edit"
+                    onClick={() => handleEditComment(comment.msgId)}
+                  />
+                  <CommentIcon
+                    src="/trash.png"
+                    alt="Delete"
+                    onClick={() => handleDeleteComment(comment.msgId)}
+                  />
+                </CommentIcons>
               </Comment>
               <CommentTime>{comment.msgTime}</CommentTime>
             </CommentWithTime>
