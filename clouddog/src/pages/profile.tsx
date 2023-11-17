@@ -324,7 +324,7 @@ interface ProfileData { //프로필 입력하는 칸 데이터들
   petNumber: number;
   petName: string;
   petDescription: string;
-  mindCount: number;
+  mindCount: string | number;
 }
 
 //모달관련 보여줄지 말지 결정
@@ -354,7 +354,7 @@ function Profiles() {
     petNumber: 0,
     petName: "",
     petDescription: "",
-    mindCount: 0,
+    mindCount: "",
   });
 
   const [petImage, setPetImage]=useState("");
@@ -401,24 +401,27 @@ function Profiles() {
   const [isFormEditable, setFormEditable] = useState(false); //폼 활성화, 비활성화
 
   useEffect(() => {
-    // loadProfileData();
-    const storedProfileImage = localStorage.getItem("profileImage");
-    if (storedProfileImage) {
-      setProfileImage(storedProfileImage);
-    }
-    const storedSelectedImage = localStorage.getItem("selectedImage"); // 추가된 부분
-    if (storedSelectedImage) {
-      setSelectedImage(storedSelectedImage);
-    }
+    // // 로컬 스토리지에서 프로필 이미지를 불러옵니다. 값이 없으면 기본 이미지로 설정합니다.
+    // const storedProfileImage = localStorage.getItem("profileImage") || "/Dog1.jpeg";
+    // setProfileImage(storedProfileImage);
+  
+    // // 선택된 이미지가 있는 경우, 상태를 업데이트합니다.
+    // const storedSelectedImage = localStorage.getItem("selectedImage");
+    // if (storedSelectedImage) {
+    //   setSelectedImage(storedSelectedImage);
+    // }
+  
+    // 편집 가능 상태 여부를 확인하고 설정합니다.
     const isEditable = localStorage.getItem("isFormEditable");
     setFormEditable(isEditable !== "false");
   }, []);
   
+  
   const handleProfileImageSave = () => {//프로필 이미지 로컬 스토리지
     if (selectedImage) {
       setProfileImage(selectedImage);
-      localStorage.setItem("profileImage", selectedImage);
-      localStorage.setItem("selectedImage", selectedImage); 
+      // localStorage.setItem("profileImage", selectedImage);
+      // localStorage.setItem("selectedImage", selectedImage); 
       setModalOpen(false);
       alert("프로필 이미지가 저장되었습니다.");
     }
@@ -436,7 +439,17 @@ function Profiles() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setProfileData((prevData) => ({ ...prevData, [name]: value }));
+     let finalValue: string | number = value;
+    
+   // 사용자가 mindCount를 수정할 때만 특별 처리
+  if (name === 'mindCount') {
+    finalValue = value === '' ? '' : Number(value); // 빈 문자열이면 그대로 두고, 아니면 숫자로 변환
+  }
+    
+    setProfileData((prevData) => ({
+      ...prevData,
+      [name]: finalValue,
+    }));
   };
 
   const handleEdit = () => {//수정함수
@@ -450,21 +463,30 @@ function Profiles() {
       profileData.petNumber === 0 ||
       !profileData.petName ||
       !profileData.petDescription ||
-      profileData.mindCount === 0  
+      (!profileData.mindCount && profileData.mindCount !== 0) 
     ) {
       alert("모든 칸을 입력해주세요.");
       return; // 조건이 만족하지 않으면 여기에서 함수 실행을 중단
     }
+
+    console.log('Sending data to API:', {
+      nickName: profileData.nickName,
+      petNumber: profileData.petNumber,
+      petName: profileData.petName,
+      petDescription: profileData.petDescription,
+      mindCount: profileData.mindCount
+    });
   
     try {
       const memberId = 1; // 예시 memberId
-      await instance.put(`/api/v1/${memberId}`, {
+      const response=await instance.put(`/api/v1/${memberId}`, {
         nickName: profileData.nickName,
         petNumber: profileData.petNumber,
         petName: profileData.petName,
         petDescription: profileData.petDescription,
         mindCount: profileData.mindCount
       });
+      console.log('Response from API:', response);
       alert("프로필이 저장되었습니다.");
     } catch (error) {
       console.error("프로필 저장 중 오류 발생:", error);
