@@ -179,10 +179,10 @@ export default function Home() {
 
         setMemberId(data.memberId); // memberId 상태 업데이트
         SessionStorage.setItem('memberId', data.memberId); // memberId 세션 스토리지에 저장
-        SessionStorage.setItem('memberId', data.petNumber);
-        SessionStorage.setItem('memberId', data.petName);
-        SessionStorage.setItem('memberId', data.petDescription);
-        SessionStorage.setItem('memberId', data.mindCount);
+        SessionStorage.setItem('petNumber', data.petNumber);
+        SessionStorage.setItem('petName', data.petName);
+        SessionStorage.setItem('petDescription', data.petDescription);
+        SessionStorage.setItem('mindCount', data.mindCount);
 
         // 사용자의 반려동물 정보가 기본값일 경우 프로필 뷰로 이동
         if (
