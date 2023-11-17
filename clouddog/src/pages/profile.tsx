@@ -266,9 +266,9 @@ const SmallCircle = styled.div`
   border: 1px solid #000;
   background: #fff;
   cursor: pointer;
-  &:hover {
-    background: #ececec;
-  }
+ 
+  background-size: 95%;
+  background-position: center;
 `;
 
 const Row = styled.div`
@@ -357,12 +357,10 @@ function Profiles() {
     mindCount: "",
   });
 
-  const [petImage, setPetImage]=useState("");
-
 
   //프로필 이미지 저장 함수
   const [profileImage, setProfileImage] = useState<string>(//프로필 이미지 url 
-    "/default-profile.png"
+    "/_포메.png"
   );
 
   //모달 창이 열려있는지 여부
@@ -377,14 +375,14 @@ function Profiles() {
   const [selectedImage, setSelectedImage] = useState<string>("");
 
   const imageOptions = [
-    "/Dog1.jpeg",
-    "/Dog2.jpeg",
-    "/Dog3.jpeg",
-    "/Dog4.jpeg",
-    "/Dog5.jpeg",
-    "/Dog6.jpeg",
-    "/Dog7.jpeg",
-    "/Dog8.png",
+    "/_포메.png",
+    "/_골디.png",
+    "/_사모.png",
+    "/_시츄.png",
+    "/비글.png",
+    "/_흰_푸들.png",
+    "/프렌치.png",
+    "/도베르만.png",
   ];
 
   //프로필 이미지 함수
@@ -401,18 +399,22 @@ function Profiles() {
   const [isFormEditable, setFormEditable] = useState(false); //폼 활성화, 비활성화
 
   useEffect(() => {
-    // // 로컬 스토리지에서 프로필 이미지를 불러옵니다. 값이 없으면 기본 이미지로 설정합니다.
-    // const storedProfileImage = localStorage.getItem("profileImage") || "/Dog1.jpeg";
-    // setProfileImage(storedProfileImage);
+    // 로컬 스토리지에서 프로필 이미지를 불러오는 코드
+    const storedProfileImage = sessionStorage.getItem("profileImage") || "/_포메.png";
+    setProfileImage(storedProfileImage);
   
-    // // 선택된 이미지가 있는 경우, 상태를 업데이트합니다.
-    // const storedSelectedImage = localStorage.getItem("selectedImage");
-    // if (storedSelectedImage) {
-    //   setSelectedImage(storedSelectedImage);
-    // }
+    const storedProfileData = sessionStorage.getItem("profileData");
+  if (storedProfileData) {
+    setProfileData(JSON.parse(storedProfileData));
+  }
+    
+    const storedSelectedImage = sessionStorage.getItem("selectedImage");
+    if (storedSelectedImage) {
+      setSelectedImage(storedSelectedImage);
+    }
   
-    // 편집 가능 상태 여부를 확인하고 설정합니다.
-    const isEditable = localStorage.getItem("isFormEditable");
+   
+    const isEditable = sessionStorage.getItem("isFormEditable");
     setFormEditable(isEditable !== "false");
   }, []);
   
@@ -420,20 +422,20 @@ function Profiles() {
   const handleProfileImageSave = () => {//프로필 이미지 로컬 스토리지
     if (selectedImage) {
       setProfileImage(selectedImage);
-      // localStorage.setItem("profileImage", selectedImage);
-      // localStorage.setItem("selectedImage", selectedImage); 
+      sessionStorage.setItem("profileImage", selectedImage);
+      sessionStorage.setItem("selectedImage", selectedImage); 
       setModalOpen(false);
       alert("프로필 이미지가 저장되었습니다.");
     }
   };
 
 
-  // const loadProfileData = () => {
-  //   const storedData = localStorage.getItem("profileData");//프로필 데이터 저장 
-  //   if (storedData) {//json으로 변환
-  //     setProfileData(JSON.parse(storedData));
-  //   }
-  // };
+  const loadProfileData = () => {
+    const storedData = sessionStorage.getItem("profileData");//프로필 데이터 저장 
+    if (storedData) {//json으로 변환
+      setProfileData(JSON.parse(storedData));
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -441,9 +443,9 @@ function Profiles() {
     const { name, value } = e.target;
      let finalValue: string | number = value;
     
-   // 사용자가 mindCount를 수정할 때만 특별 처리
+  
   if (name === 'mindCount') {
-    finalValue = value === '' ? '' : Number(value); // 빈 문자열이면 그대로 두고, 아니면 숫자로 변환
+    finalValue = value === '' ? '' : Number(value); 
   }
     
     setProfileData((prevData) => ({
@@ -466,7 +468,7 @@ function Profiles() {
       (!profileData.mindCount && profileData.mindCount !== 0) 
     ) {
       alert("모든 칸을 입력해주세요.");
-      return; // 조건이 만족하지 않으면 여기에서 함수 실행을 중단
+      return; 
     }
 
     console.log('Sending data to API:', {
@@ -492,8 +494,8 @@ function Profiles() {
       console.error("프로필 저장 중 오류 발생:", error);
     }
   
-    // 로컬 스토리지에 프로필 데이터 저장하는 부분이 필요하다면 여기에 추가
-    // localStorage.setItem("profileData", JSON.stringify(profileData));
+    
+    sessionStorage.setItem("profileData", JSON.stringify(profileData));
     setFormEditable(false);
   };
 
@@ -576,7 +578,7 @@ function Profiles() {
                    <SmallCircle
                      key={index}
                      style={{ backgroundImage: `url(${image})` }}
-                      onClick={() => handleImageSelect(image, index + 4)} // 4를 더해줌
+                      onClick={() => handleImageSelect(image, index + 4)} 
                     />
                    ))}
                 </Row>
