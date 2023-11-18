@@ -125,20 +125,20 @@ const Archive = () => {
           <div>추억 추가하기</div>
         </AddArchiveBtn>
       </AddArchiveBtnContainer>
-      <div>
-        게시글 리스트 컨테이너
-        {currentArchive.map((archive) => (
-          <div key={archive.archiveList.bdId}>
-            <div>{archive.archiveList.bdImageUrl}</div>
-          </div>
-        ))}
-      </div>
+      <ArchiveListContainer>
+  {currentArchive.map((archive) => (
+     <ArchiveItem
+     key={archive.archiveList.bdId}
+     imageUrl={archive.archiveList.bdImageUrl}
+   >
+    </ArchiveItem>
+  ))}
+</ArchiveListContainer>
     </TotalContainer>
   );
 };
 
 export default Archive;
-
 const TotalContainer = styled.div`
   position: relative;
   display: flex;
@@ -187,4 +187,23 @@ const AddArchiveBtnImg = styled.div`
   width: 2.5vw;
   height: 1.5vw;
   margin-right: 0.5vw;
+`;
+
+const ArchiveListContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2vw;
+  width: 100%;
+  margin-top: 2vw;
+`;
+
+const ArchiveItem = styled.div<{ imageUrl: string }>`
+  width: 426px;
+  height: 426px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: 1px solid #000;
+  background: url(${(props) => props.imageUrl}), lightgray 50% / cover no-repeat;
+  margin-bottom: 2vw;
 `;
