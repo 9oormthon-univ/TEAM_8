@@ -20,14 +20,14 @@ interface FriendContant {
 }
 
 const imgMapping = {
-  0: '/_골디.png',
-  1: '/_골디.png',
-  2: '/_골디.png',
-  3: '/_골디.png',
+  0: '/_포메.png',
+  1: '/_흰_푸들.png',
+  2: '/_사모.png',
+  3: '/_시츄.png',
   4: '/_골디.png',
-  5: '/_골디.png',
-  6: '/_골디.png',
-  7: '/_골디.png',
+  5: '/비글.png',
+  6: '/도베르만.png',
+  7: '/프렌치.png',
 };
 
 const FriendList = () => {
