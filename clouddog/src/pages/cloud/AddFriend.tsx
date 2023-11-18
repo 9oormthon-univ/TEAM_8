@@ -27,7 +27,6 @@ const AddFriedn = () => {
   };
 
   const onSubmitSearchBtn = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
     instance
       .get(`/api/v1/${memberId}/friend/info?friendEmail=${friendEmail}`)
       .then((data) => {
