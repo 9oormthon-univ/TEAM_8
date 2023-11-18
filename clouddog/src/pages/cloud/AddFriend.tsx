@@ -1,18 +1,21 @@
 import Header from '@/components/header';
 import FriendCard from '@/components/FriendCard';
 import styled from 'styled-components';
+import SessionStorage from '@/constants/SessionStorage';
 
-import { ChangeEvent, useState, useEffect } from 'react';
+import { ChangeEvent, useState, useEffect, FormEvent } from 'react';
+import { instance } from '@/apis/instance/axios';
 
 const AddFriedn = () => {
   const [friendEmail, setFriendEmail] = useState<string>('');
 
   const [myEmail, setMyEmail] = useState<string>('');
   const [isAuth, setIsAuth] = useState(false);
+  const memberId = SessionStorage.getItem('memberId');
 
   useEffect(() => {
-    if (localStorage.getItem('userEmail')) {
-      setMyEmail(localStorage.getItem('userEmail') as string);
+    if (SessionStorage.getItem('userEmail')) {
+      setMyEmail(SessionStorage.getItem('userEmail') as string);
       setIsAuth(!isAuth);
     } else {
       setIsAuth(false);
@@ -23,19 +26,30 @@ const AddFriedn = () => {
     setFriendEmail(e.target.value);
   };
 
+  const onSubmitSearchBtn = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    instance
+      .get(`/api/v1/${memberId}/friend/info?friendEmail=${friendEmail}`)
+      .then((data) => {
+        console.log(data);
+        SessionStorage.setItem('friendEmail', friendEmail);
+        SessionStorage.setItem('picture', data.data.picture);
+      });
+  };
+
   return (
     <TotalContainer>
       <Header />
       <TitleText>친구 찾기</TitleText>
       <InputContainer>
-        <InputBox>
+        <InputBox onSubmit={onSubmitSearchBtn}>
           <FriendEmail
-            type="text"
+            type="email"
             placeholder="친구 구글 이메일"
             value={friendEmail}
             onChange={onChangeFriendEmail}
           />
-          <SerchBtn></SerchBtn>
+          <SerchBtn type="submit"></SerchBtn>
         </InputBox>
         <InputBoxDisable>
           <MyEmailInp type="text" placeholder="내 이메일" disabled />
@@ -76,7 +90,7 @@ const InputContainer = styled.div`
   gap: 2.3vh;
 `;
 
-const InputBox = styled.div`
+const InputBox = styled.form`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -110,7 +124,7 @@ const FriendEmail = styled.input`
   font-size: 1.2vw;
 `;
 
-const SerchBtn = styled.div`
+const SerchBtn = styled.button`
   width: 2vw;
   height: 2vw;
 
