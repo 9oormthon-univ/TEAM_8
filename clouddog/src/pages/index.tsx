@@ -38,7 +38,7 @@ const Main = styled.div`
   position: relative;
 `;
 
-const CommentContainer = styled.div`
+const CommentContainer = styled.form`
   width: 100%;
   display: flex;
   justify-content: center;
@@ -75,6 +75,10 @@ const CommentBox = styled.input`
     line-height: normal;
   }
 `;
+
+const SubmitContainer = styled.button `
+  all: unset;
+`
 
 const SubmitButton = styled.img`
   position: absolute;
@@ -146,18 +150,25 @@ const CommentIcon = styled.img`
   width: 2.1vw;
   height: 2.1vw;
 `;
+interface CommentList{
+  commentList: CommentType
+}
 
 interface CommentType {
   msgContent: string;
   msgTime: string;
   msgId: number;
+  memberId:number;
 }
 
 export default function Home() {
   const [animate, setAnimate] = useState<boolean>(false);
-  const [comments, setComments] = useState<CommentType[]>([]);
+  const [comments, setComments] = useState<CommentList[]>([]);
   const [commentInput, setCommentInput] = useState<string>('');
   const [memberId, setMemberId] = useState(null);
+  const [editCommentId, setEditCommentId]= useState<number | null>(null);
+
+
 
   const router = useRouter();
 
@@ -208,11 +219,12 @@ export default function Home() {
         if (memberId) {
           const response = await instance.get(`/api/v1/${memberId}/messages`);
           console.log(response.data);
+          console.log("댓글 가져오기 완료");
           setComments(
-            response.data.map((msg:CommentType) => ({
-              id: msg.msgId,
-              text: msg.msgContent,
-              time: msg.msgTime,
+            response.data.map((msg:CommentList) => ({
+              id: msg.commentList.msgId,
+              text: msg.commentList.msgContent,
+              time: msg.commentList.msgTime,
             }))
           );
         }
@@ -224,44 +236,50 @@ export default function Home() {
   }, [memberId]);
 
   //수정로직
-  const handleEditComment = async (msgId: number) => {
-    const memberId = sessionStorage.getItem('memberId');
-    const editedContent = prompt('Edit your comment:');
-    if (editedContent !== null) {
+  useEffect(() => {
+    const handleEditComment = async () => {
+      if (editCommentId !== null) {
+        console.log('Editing comment with ID:', editCommentId); 
+        const memberId = Number(sessionStorage.getItem('memberId'));
+        const editedContent = prompt('Edit your comment:');
 
-      console.log('Sending PATCH request with data:', {
-        memberId: Number(memberId),
-        msgContent: editedContent,
-      });
+        if (editedContent !== null && editedContent.trim() !== '') {
+          try {
+            const response = await instance.patch(`/api/v1/messages/${editCommentId}`, {
+              memberId,
+              msgContent: editedContent,
+            });
 
-      try {
-        const response = await instance.patch(`/api/v1/messages/${msgId}`, {
-          memberId:Number(memberId),
-          msgContent: editedContent,
-        });
+            console.log('Edited Comment:', response.data); 
+            setComments((currentComments) =>
+              currentComments.map((comment) =>
+                comment.commentList.msgId === editCommentId
+                  ? { ...comment, msgContent: editedContent }
+                  : comment
+              )
+            );
 
-        console.log(response.data);
-
-        // 여기에서 상태를 업데이트하여 UI에 반영
-        setComments((currentComments) =>
-          currentComments.map((comment) =>
-            comment.msgId === msgId
-              ? { ...comment, msgContent: editedContent }
-              : comment
-          )
-        );
-
-        console.log('Edited Comment:', response.data);
-        alert('댓글이 수정되었습니다.');
-      } catch (error) {
-        console.error('Error editing comment:', error);
-        alert('댓글 수정에 실패했습니다.');
+            alert('댓글이 수정되었습니다.');
+          } catch (error) {
+            console.error('Error editing comment:', error);
+            alert('댓글 수정에 실패했습니다.');
+          }
+        }
       }
-    }
+    };
+
+    handleEditComment();
+  }, [editCommentId]); 
+
+  const requestEditComment = (msgId:number) => {
+    setEditCommentId(msgId);
   };
+  
+  
 
   //삭제로직
   const handleDeleteComment = async (msgId: number) => {
+
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
         await instance.delete(`/api/v1/messages/${msgId}`);
@@ -269,7 +287,7 @@ export default function Home() {
         
         // 로컬 상태에서도 해당 댓글 제거
         setComments((currentComments) =>
-          currentComments.filter((comment) => comment.msgId !== msgId)
+          currentComments.filter((comment) => comment.commentList.msgId !== msgId)
         );
 
         alert('댓글이 삭제되었습니다.');
@@ -281,41 +299,41 @@ export default function Home() {
     }
   };
 
+
+  //댓글 생성
   const handleAddComment = async () => {
     if (!commentInput.trim()) {
       alert('댓글 내용을 입력해주세요.');
       return;
     }
-
+  
     console.log('댓글 생성');
-
-    const newComment = {
-      msgContent: commentInput,
-      msgTime: new Date().toISOString().split('T')[0],
-      msgId: comments.length + 1,
-    };
-
+  
     try {
-      const memberId = 1; 
-      const newComment = {
-        memberId: memberId,
+      const memberId = Number(SessionStorage.getItem('memberId'));
+  
+      const response = await instance.post('/api/v1/messages', {
+        memberId,
         msgContent: commentInput,
-      };
-
-      //여긴 잘 됨
-      const response = await instance.post('/api/v1/messages', newComment);
+      });
+  
       console.log("댓글 저장 완료", response.data);
-
-      const addedComment = {
-        ...newComment,
-        msgId: response.data.msgId,
-        msgTime: response.data.msgTime || new Date().toISOString().split('T')[0],
-      };
-
-    setComments([addedComment, ...comments]);
-    setCommentInput('');
-    setAnimate(true);
-    setTimeout(() => setAnimate(false), 3000);
+  
+      
+      // const newComment = {
+      //   msgId: response.data.msgId,
+      //   msgContent: commentInput,
+      //   msgTime: response.data.msgTime,
+      //   memberId,
+      // };
+  
+      // setComments(prevComments => [newComment, ...prevComments]);
+      
+      
+      setCommentInput('');
+  
+      setAnimate(true);
+      setTimeout(() => setAnimate(false), 3000);
     } catch (error) {
       console.error("댓글 저장 중 오류 발생:", error);
     }
@@ -405,32 +423,35 @@ export default function Home() {
             onKeyPress={handleKeyPress}
             maxLength={200}
           />
+          <SubmitContainer type='submit'>
           <SubmitButton
             src="/comment.png"
             alt="제출"
             onClick={handleAddComment}
           />
+          </SubmitContainer>
         </CommentInputContainer>
 
         <PostContainer>
           {comments.map((comment, index) => (
-            <CommentWithTime key={index}>
+            <CommentWithTime key={comment.commentList.msgId}>
               <Comment>
-                {comment.msgContent}
+                {comment.commentList.msgContent}
                 <CommentIcons>
                   <CommentIcon
                     src="/pencil.png"
                     alt="Edit"
-                    onClick={() => handleEditComment(comment.msgId)}
+                    onClick={() => {requestEditComment(comment.commentList.msgId);
+                    console.log(comment.commentList.msgId);}}
                   />
                   <CommentIcon
                     src="/trash.png"
                     alt="Delete"
-                    onClick={() => handleDeleteComment(comment.msgId)}
+                    onClick={() => handleDeleteComment(comment.commentList.msgId)}
                   />
                 </CommentIcons>
               </Comment>
-              <CommentTime>{comment.msgTime}</CommentTime>
+              <CommentTime>{comment.commentList.msgTime}</CommentTime>
             </CommentWithTime>
           ))}
         </PostContainer>

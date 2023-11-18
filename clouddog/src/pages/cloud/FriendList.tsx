@@ -3,13 +3,16 @@ import Image from 'next/image';
 import BackImg from '@/styles/login.module.css';
 import Header from '@/components/header';
 import { useRouter } from 'next/router';
-
+import { useEffect } from 'react';
 const FriendList = () => {
 
   const router = useRouter();
 
   const addFriendRouter = () => router.push('/cloud/AddFriend');
 
+  useEffect(()=>{
+
+  })
   return (
     <TotalContainer>
       <Header />
@@ -23,7 +26,11 @@ const FriendList = () => {
         src={'/LoginBackImg.png'}
         alt={'LoginBackImg'}
         fill
-      ></Image>
+      />
+       <CircleContainer/>
+       <CircleContainer/>
+       <CircleContainer/>
+       <CircleContainer/>
     </TotalContainer>
   );
 };
@@ -100,3 +107,11 @@ const AddText = styled.span`
   font-weight: lighter;
   padding-bottom: 0.5vw;
 `;
+
+const CircleContainer = styled.div`
+  width:14.25vw;
+  height:14.1vw;
+  border-radius: 14.25vw;
+background: #DADADA;
+mix-blend-mode: multiply;
+`
