@@ -58,8 +58,8 @@ export default function Header() {
   const router = useRouter();
 
   const navigateToHome = () => router.push("/");
-  const navigateToArchive = () => router.push("/archive");
-  const navigateToCloud = () => router.push("/cloud");
+  const navigateToArchive = () => router.push("/memory/Archive");
+  const navigateToCloud = () => router.push("/cloud/FriendList");
   const navigateToProfile = () => router.push("/profile");
 
   return (
