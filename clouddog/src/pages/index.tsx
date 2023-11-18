@@ -171,7 +171,7 @@ export default function Home() {
     }
 
     const fetchUserInfo = async () => {
-      try {
+      try { //메인 들어왔을때 
         const response = await instance.get('/api/v1/my-info', {
           params: { uid: userId },
         });
@@ -204,36 +204,48 @@ export default function Home() {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await instance.get('/api/v1/messages');
-        console.log(response.data);
-        setComments(
-          response.data.map((msg: CommentType) => ({
-            id: msg.msgId,
-            text: msg.msgContent,
-            time: msg.msgTime,
-          }))
-        );
+        const memberId = SessionStorage.getItem('memberId');
+        if (memberId) {
+          const response = await instance.get(`/api/v1/${memberId}/messages`);
+          console.log(response.data);
+          setComments(
+            response.data.map((msg:CommentType) => ({
+              id: msg.msgId,
+              text: msg.msgContent,
+              time: msg.msgTime,
+            }))
+          );
+        }
       } catch (error) {
         console.error('메시지를 불러오는 중 오류 발생:', error);
       }
     };
     fetchMessages();
-  }, []);
+  }, [memberId]);
 
   //수정로직
-  const handleEditComment = async (commentId: number) => {
+  const handleEditComment = async (msgId: number) => {
+    const memberId = sessionStorage.getItem('memberId');
     const editedContent = prompt('Edit your comment:');
     if (editedContent !== null) {
+
+      console.log('Sending PATCH request with data:', {
+        memberId: Number(memberId),
+        msgContent: editedContent,
+      });
+
       try {
-        const response = await instance.patch(`/api/v1/messages/${commentId}`, {
-          memberId: 1,
+        const response = await instance.patch(`/api/v1/messages/${msgId}`, {
+          memberId:Number(memberId),
           msgContent: editedContent,
         });
+
+        console.log(response.data);
 
         // 여기에서 상태를 업데이트하여 UI에 반영
         setComments((currentComments) =>
           currentComments.map((comment) =>
-            comment.msgId === commentId
+            comment.msgId === msgId
               ? { ...comment, msgContent: editedContent }
               : comment
           )
@@ -249,19 +261,21 @@ export default function Home() {
   };
 
   //삭제로직
-  const handleDeleteComment = async (commentId: number) => {
+  const handleDeleteComment = async (msgId: number) => {
     if (window.confirm('정말 삭제하시겠습니까?')) {
       try {
-        await instance.delete(`/api/v1/messages/${commentId}`);
+        await instance.delete(`/api/v1/messages/${msgId}`);
 
+        
         // 로컬 상태에서도 해당 댓글 제거
         setComments((currentComments) =>
-          currentComments.filter((comment) => comment.msgId !== commentId)
+          currentComments.filter((comment) => comment.msgId !== msgId)
         );
 
         alert('댓글이 삭제되었습니다.');
       } catch (error) {
         console.error('댓글 삭제 중 오류 발생:', error);
+        console.log('Deleted Comment ID:', msgId);
         alert('댓글 삭제에 실패했습니다.');
       }
     }
@@ -278,33 +292,33 @@ export default function Home() {
     const newComment = {
       msgContent: commentInput,
       msgTime: new Date().toISOString().split('T')[0],
-      // msgId 필드는 서버에서 생성되는 값이므로 생략하거나 임시 값을 할당합니다.
       msgId: comments.length + 1,
     };
 
-    // try {
-    //   const memberId = 1; // 현재 로그인한 사용자의 ID를 가져와야 합니다.
-    //   const newComment = {
-    //     memberId: memberId,
-    //     msgContent: commentInput,
-    //   };
+    try {
+      const memberId = 1; 
+      const newComment = {
+        memberId: memberId,
+        msgContent: commentInput,
+      };
 
-    //   const response = await instance.post('/api/v1/messages', newComment);
-    //   console.log("댓글 저장 완료", response.data);
+      //여긴 잘 됨
+      const response = await instance.post('/api/v1/messages', newComment);
+      console.log("댓글 저장 완료", response.data);
 
-    //   const addedComment = {
-    //     ...newComment,
-    //     msgId: response.data.msgId,
-    //     msgTime: response.data.msgTime || new Date().toISOString(),
-    //   };
+      const addedComment = {
+        ...newComment,
+        msgId: response.data.msgId,
+        msgTime: response.data.msgTime || new Date().toISOString().split('T')[0],
+      };
 
-    setComments([newComment, ...comments]);
+    setComments([addedComment, ...comments]);
     setCommentInput('');
     setAnimate(true);
     setTimeout(() => setAnimate(false), 3000);
-    // } catch (error) {
-    //   console.error("댓글 저장 중 오류 발생:", error);
-    // }
+    } catch (error) {
+      console.error("댓글 저장 중 오류 발생:", error);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
