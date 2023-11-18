@@ -249,8 +249,12 @@ const ModalProfile = styled.div<ModalProfileProps>`
   height: 18.75vw;
   border-radius: 21.4vw;
   border: 1px solid #000;
+  background-size: 75%; 
+  background-repeat: no-repeat; 
+  background-position: center;
   background: ${(props) =>
     `url(${props.backgroundImage}) no-repeat center/cover`};
+   background-color: var(--2, #FEF1DE);
   margin-top: 1vw;
 `;
 
@@ -269,23 +273,26 @@ const SmallCircle = styled.div`
   border: 1px solid #000;
   background: #fff;
   cursor: pointer;
- 
-  background-size: 95%;
+  background: var(--2, #FEF1DE);
+  background-size:80%;
+  background-repeat:no-repeat;
   background-position: center;
 `;
 
-const Row = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 3vw;
-`;
 
+const Profilename= styled.p`
+  font-size:1vw;
+  display:flex;
+  flex-direction:column;
+  align-items: center;
+  gap:1vw;
+`
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-left: 3.4165vw;
-  gap: 2.275vw;
+  gap: 1.5vw;
 `;
 
 const SaveButton2Container = styled.div`
@@ -322,7 +329,25 @@ height: 36px;
   color: #000;
 `;
 
-interface ProfileData { //프로필 입력하는 칸 데이터들
+const ImageOptionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5vw; 
+`;
+
+const ImageName = styled.span`
+margin-top:0.5vw;
+  font-size: 1vw; 
+`;
+
+const Row =styled.div`
+  display:flex;
+  justify-content: center;
+  gap:3vw;
+`
+
+interface ProfileData { 
   nickName: string;
   petNumber: number;
   petName: string;
@@ -378,14 +403,14 @@ function Profiles() {
   const [selectedImage, setSelectedImage] = useState<string>("");
 
   const imageOptions = [
-    "/_포메.png",
-    "/_골디.png",
-    "/_사모.png",
-    "/_시츄.png",
-    "/비글.png",
-    "/_흰_푸들.png",
-    "/프렌치.png",
-    "/도베르만.png",
+    { url: "/_포메.png", name: "포메라니안" },
+    { url: "/_흰_푸들.png", name: "푸들" },
+    { url: "/_사모.png", name:"사모예드"},
+    { url: "/_시츄.png", name:"시츄"},
+    { url: "/_골디.png", name:"골든 리트리버"},
+    { url: "/비글.png", name:"비글"},
+    { url: "/도베르만.png", name:"도베르만"},
+    { url: "/_프렌치_불독.png", name:"프렌치 불독"},
   ];
 
   //프로필 이미지 함수
@@ -565,28 +590,37 @@ function Profiles() {
             <ModalContainer onClick={(e) => e.stopPropagation()}>
               <Modaldiv>
               <CloseButton onClick={handleCloseButtonClick}>X</CloseButton>
+                <Profilename>
                 <ModalProfile
                   backgroundImage={selectedImage || "/default-profile.png"}
                 />
+                <p>나의 반려견</p>
+                </Profilename>
                 <ModalContent>
                 <Row>
-                  {imageOptions.slice(0, 4).map((image, index) => (
+                  {imageOptions.slice(0, 4).map((option, index) => (
+                     <ImageOptionContainer key={index}>
                     <SmallCircle
                       key={index}
-                      style={{ backgroundImage: `url(${image})` }}
-                      onClick={() => handleImageSelect(image, index)}
+                      style={{ backgroundImage: `url(${option.url})` }}
+                      onClick={() => handleImageSelect(option.url, index)}
                       />
+                      <ImageName>{option.name}</ImageName>
+                      </ImageOptionContainer>
                       ))}
                 </Row>
                 <Row>
-                  {imageOptions.slice(4, 8).map((image, index) => (
+                  {imageOptions.slice(4, 8).map((option, index) => (
+                   <ImageOptionContainer key={index}>
                    <SmallCircle
                      key={index}
-                     style={{ backgroundImage: `url(${image})` }}
-                      onClick={() => handleImageSelect(image, index + 4)} 
+                     style={{ backgroundImage: `url(${option.url})` }}
+                      onClick={() => handleImageSelect(option.url, index + 4)} 
                     />
-                   ))}
-                </Row>
+                    <ImageName>{option.name}</ImageName>
+                    </ImageOptionContainer>
+                    ))}
+                    </Row>
 
                   <SaveButton2Container>
                     <SaveButton2 onClick={handleProfileImageSave}>
