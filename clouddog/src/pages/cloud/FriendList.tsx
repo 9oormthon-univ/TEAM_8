@@ -1,25 +1,66 @@
 import styled from 'styled-components';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 import BackImg from '@/styles/login.module.css';
 import Header from '@/components/header';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-const FriendList = () => {
+import SessionStorage from '@/constants/SessionStorage';
 
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { instance } from '@/apis/instance/axios';
+
+interface FriendContant {
+  email: string;
+  memberId: number;
+  mindCount: number;
+  name: string;
+  petDescription: string;
+  petName: string;
+  petNumber: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  picture: string;
+}
+
+const imgMapping = {
+  0: '/_골디.png',
+  1: '/_골디.png',
+  2: '/_골디.png',
+  3: '/_골디.png',
+  4: '/_골디.png',
+  5: '/_골디.png',
+  6: '/_골디.png',
+  7: '/_골디.png',
+};
+
+const FriendList = () => {
   const router = useRouter();
+  const memberId = SessionStorage.getItem('memberId');
+  const [friendList, setFriendList] = useState<FriendContant[]>([]);
 
   const addFriendRouter = () => router.push('/cloud/AddFriend');
 
-  useEffect(()=>{
+  useEffect(() => {
+    console.log('FriendList');
+    instance.get(`/api/v1/${memberId}/friends`).then((res) => {
+      console.log(res.data);
+      setFriendList(res.data.content);
+    });
+  }, []);
 
-  })
+  const AnimalImage = (src: StaticImageData) => {
+    return <Image src={src} alt={'이미지가 나올곳'} />;
+  };
+
+  console.log('friend', friendList);
+  console.log('friend', friendList[0]?.petNumber);
   return (
     <TotalContainer>
       <Header />
       <ExplainContainer>
         <TitleText>Cloud</TitleText>
         <ExplainText>강아지와 친구를 맺고, 구름을 방문해보세요!</ExplainText>
-        <FriednBtn onClick={addFriendRouter}> <AddText>+</AddText> 친구 찾기</FriednBtn>
+        <FriednBtn onClick={addFriendRouter}>
+          {' '}
+          <AddText>+</AddText> 친구 찾기
+        </FriednBtn>
       </ExplainContainer>
       <Image
         className={BackImg.img}
@@ -27,10 +68,21 @@ const FriendList = () => {
         alt={'LoginBackImg'}
         fill
       />
-       <CircleContainer/>
-       <CircleContainer/>
-       <CircleContainer/>
-       <CircleContainer/>
+      <FriendListContainer>
+        {friendList.map((friend) => (
+          <FriendPetContainer key={friend?.memberId}>
+            <CircleContainer>
+              {/* <Image src={`${mapping[friend.content?.petNumber]}`} alt="`" fill /> */}
+              <AnimalImage
+                src={imgMapping[friend?.petNumber]}
+                width={220}
+                height={220}
+              />
+            </CircleContainer>
+            <div>{friend?.email.slice(0, -10)}</div>
+          </FriendPetContainer>
+        ))}
+      </FriendListContainer>
     </TotalContainer>
   );
 };
@@ -79,13 +131,13 @@ const FriednBtn = styled.div`
 
   padding-right: 0.2vw;
 
-  gap: .5vw;
+  gap: 0.5vw;
 
-  border: 2px solid black;
+  border: 0.125rem solid black;
   border-radius: 2vw;
 
   color: white;
-  background-color: #F1824D;
+  background-color: #f1824d;
 
   font-size: 1.1vw;
   font-weight: 600;
@@ -97,7 +149,7 @@ const FriednBtn = styled.div`
 
   &:active {
     transition: 0.2s;
-    transform: translateY(2px);
+    transform: translateY(0.125rem);
   }
 `;
 
@@ -108,10 +160,32 @@ const AddText = styled.span`
   padding-bottom: 0.5vw;
 `;
 
+const FriendListContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+
+  gap: 2vw;
+`;
+
+const FriendPetContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+`;
+
 const CircleContainer = styled.div`
-  width:14.25vw;
-  height:14.1vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 16vw;
+  height: 16vw;
   border-radius: 14.25vw;
-background: #DADADA;
-mix-blend-mode: multiply;
-`
+
+  box-shadow: 0rem 0rem 2rem 2rem white;
+  background-color: white;
+`;
