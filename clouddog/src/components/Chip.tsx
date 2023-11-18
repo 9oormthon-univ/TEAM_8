@@ -22,7 +22,7 @@ const Chip = ({
       <ImgContainer>
         <Image src={selected ? selectedImageSrc : imageSrc} alt={label} fill />
       </ImgContainer>
-      {label}
+      <ChipText>{label}</ChipText>
     </ChipButton>
   );
 };
@@ -35,13 +35,24 @@ const ChipButton = styled.button<{ selected: boolean }>`
   justify-content: center;
 
   width: 10vw;
-  height: 5vh;
+  height: 2.3vw;
 
   border-radius: 2vw;
   border: 1px solid black;
 
   background-color: ${(props) => (props.selected ? '#FE8F5A' : 'white')};
   color: ${(props) => (props.selected ? 'white' : 'black')};
+
+  transition: 0.2s;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:active {
+    transition: 0.2s;
+    transform: translateY(2px);
+  }
 `;
 
 const ImgContainer = styled.div`
@@ -49,4 +60,9 @@ const ImgContainer = styled.div`
   width: 1vw;
   height: 1vw;
   margin-right: 0.5vw;
+`;
+
+const ChipText = styled.div`
+  font-size: 1vw;
+  font-weight: bold;
 `;
