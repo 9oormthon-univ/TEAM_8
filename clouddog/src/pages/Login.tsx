@@ -42,9 +42,9 @@ const Login = () => {
     <TotalContainer>
       <ExplainContainer>
         <DogImg></DogImg>
-        <TitleText>뭉개뭉개</TitleText>
+        <TitleText>구름멍</TitleText>
         <ExplainText>
-          뭉개뭉개와 함께 댕댕이와의 추억을 기록하고 헤어짐을 새롭게
+          구름멍과 함께 댕댕이와의 추억을 기록하고 헤어짐을 새롭게
           재해석해보세요!
         </ExplainText>
       </ExplainContainer>
