@@ -1,17 +1,22 @@
 import styled from 'styled-components';
 import Image from 'next/image';
 import BackImg from '@/styles/login.module.css';
-
 import Header from '@/components/header';
+import { useRouter } from 'next/router';
 
 const FriendList = () => {
+
+  const router = useRouter();
+
+  const addFriendRouter = () => router.push('/cloud/AddFriend');
+
   return (
     <TotalContainer>
       <Header />
       <ExplainContainer>
         <TitleText>Cloud</TitleText>
         <ExplainText>강아지와 친구를 맺고, 구름을 방문해보세요!</ExplainText>
-        <FriednBtn> <AddText>+</AddText> 친구 찾기</FriednBtn>
+        <FriednBtn onClick={addFriendRouter}> <AddText>+</AddText> 친구 찾기</FriednBtn>
       </ExplainContainer>
       <Image
         className={BackImg.img}
