@@ -8,7 +8,7 @@ import { instance } from '@/apis/instance/axios';
 
 const AddFriedn = () => {
   const [friendEmail, setFriendEmail] = useState<string>('');
-
+  const [friendProfile, setFriendProfile] = useState(null);
   const [myEmail, setMyEmail] = useState<string>('');
   const [isAuth, setIsAuth] = useState(false);
   const memberId = SessionStorage.getItem('memberId');
@@ -26,14 +26,22 @@ const AddFriedn = () => {
     setFriendEmail(e.target.value);
   };
 
-  const onSubmitSearchBtn = (e: FormEvent<HTMLFormElement>) => {
-    instance
-      .get(`/api/v1/${memberId}/friend/info?friendEmail=${friendEmail}`)
-      .then((data) => {
-        console.log(data);
+  const onSubmitSearchBtn = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const memberId = SessionStorage.getItem('memberId');
+    if (memberId) {
+      try {
+        const response = await instance.get(`/api/v1/${memberId}/friend/info`, {
+          params: { friendEmail: friendEmail }
+        });
+        console.log(response);
+        setFriendProfile(response.data); 
         SessionStorage.setItem('friendEmail', friendEmail);
-        SessionStorage.setItem('picture', data.data.picture);
-      });
+        SessionStorage.setItem('picture', response.data.picture);
+      } catch (error) {
+        console.error('Error fetching friend info:', error);
+      }
+    }
   };
 
   return (
@@ -48,7 +56,9 @@ const AddFriedn = () => {
             value={friendEmail}
             onChange={onChangeFriendEmail}
           />
-          <SerchBtn type="submit"></SerchBtn>
+          <SerchBtn type="submit">
+            <img src="/Search.png" alt="Search" style={{width:"100%", height:"100%"}}/>
+          </SerchBtn>
         </InputBox>
         <InputBoxDisable>
           <MyEmailInp type="text" placeholder="내 이메일" disabled />
@@ -128,7 +138,8 @@ const SerchBtn = styled.button`
   height: 2vw;
 
   border-radius: 50%;
-
+  border: none; 
+  cursor: pointer; 
   background-color: #e5e5e5;
 `;
 
