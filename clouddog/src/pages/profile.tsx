@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { instance } from "@/apis/instance/axios";
 
+
+//프로필 부분 api 통신 완전 개잘됨
+
 const Home = styled.div`
   display: flex;
   flex-direction: column;
@@ -399,6 +402,8 @@ function Profiles() {
   const [isFormEditable, setFormEditable] = useState(false); //폼 활성화, 비활성화
 
   useEffect(() => {
+
+    setFormEditable(false);// 폼 비활성화
     // 로컬 스토리지에서 프로필 이미지를 불러오는 코드
     const storedProfileImage = sessionStorage.getItem("profileImage") || "/_포메.png";
     setProfileImage(storedProfileImage);
@@ -412,10 +417,6 @@ function Profiles() {
     if (storedSelectedImage) {
       setSelectedImage(storedSelectedImage);
     }
-  
-   
-    const isEditable = sessionStorage.getItem("isFormEditable");
-    setFormEditable(isEditable !== "false");
   }, []);
   
   
@@ -429,13 +430,6 @@ function Profiles() {
     }
   };
 
-
-  const loadProfileData = () => {
-    const storedData = sessionStorage.getItem("profileData");//프로필 데이터 저장 
-    if (storedData) {//json으로 변환
-      setProfileData(JSON.parse(storedData));
-    }
-  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -480,7 +474,7 @@ function Profiles() {
     });
   
     try {
-      const memberId = 1; // 예시 memberId
+      const memberId = sessionStorage.getItem('memberId');
       const response=await instance.put(`/api/v1/${memberId}`, {
         nickName: profileData.nickName,
         petNumber: profileData.petNumber,
