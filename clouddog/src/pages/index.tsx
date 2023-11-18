@@ -87,11 +87,14 @@ const SubmitButton = styled.img`
 `;
 
 const Comment = styled.div`
+gap:1vw;
   color: #000;
   font-size: 1.3vw;
   border: 1.5px solid #000;
   padding: 1vw 2.5vw;
+  padding-right:1vw;
   font-style: normal;
+  
   font-weight: 500;
   line-height: 160%;
   min-height: 3.8vw;
@@ -291,6 +294,7 @@ export default function Home() {
 
     try {
       const memberId = Number(SessionStorage.getItem('memberId'));
+      const currentDate= new Date().toISOString().split('T')[0];
 
       //여긴 잘 됨
       const response = await instance.post('/api/v1/messages', {
@@ -302,6 +306,7 @@ export default function Home() {
       const addedComment= {
         ...response.data,
         msgContent: commentInput,
+        msgTime:currentDate,
       };
 
       setComments(prevComments => [addedComment, ...prevComments]);
@@ -411,23 +416,26 @@ export default function Home() {
           {comments.map((comment, index) => (
             
             <CommentWithTime key={comment.msgId}>
-              <Comment>
-                {comment.msgContent}
-                <CommentIcons>
-                  <CommentIcon 
-                    src="/pencil.png"
-                    alt="Edit"
-                    onClick={() => handleEditComment(comment.msgId)}
-                  />
-                  <CommentIcon
-                    src="/trash.png"
-                    alt="Delete"
-                    onClick={() => handleDeleteComment(comment.msgId)}
-                  />
-                </CommentIcons>
-              </Comment>
-              <CommentTime>{comment.msgTime}</CommentTime>
-            </CommentWithTime>
+  <Comment>
+    {comment.msgContent}
+    <CommentIcons>
+      <CommentIcon 
+        src="/pencil.png"
+        alt="Edit"
+        onClick={() => handleEditComment(comment.msgId)}
+      />
+      <CommentIcon
+        src="/trash.png"
+        alt="Delete"
+        onClick={() => handleDeleteComment(comment.msgId)}
+      />
+    </CommentIcons>
+  </Comment>
+  <CommentTime>
+    {new Date(comment.msgTime).toLocaleDateString()}
+  </CommentTime>
+</CommentWithTime>
+
           ))}
         
         </PostContainer>
