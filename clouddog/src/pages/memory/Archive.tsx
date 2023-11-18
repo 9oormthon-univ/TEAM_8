@@ -105,7 +105,7 @@ const Archive = () => {
   };
 
   const addPostOnClick = () => {
-    router.push('/memory/addPost');
+    router.push('/memory/AddPost');
   };
 
   return (
