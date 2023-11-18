@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 import Image from 'next/image';
 import BackImg from '@/styles/login.module.css';
+import SessionStorage from '@/constants/SessionStorage';
 import { auth } from '@/apis/instance/firebase';
 import { useRouter } from 'next/router';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { Session } from 'inspector';
 
 const Login = () => {
   // 라우터
@@ -22,8 +24,13 @@ const Login = () => {
 
     // accessToken 넣기
     const accessToken = await auth.currentUser?.getIdToken().then((token) => {
-      localStorage.setItem('accessToken', token);
-      localStorage.setItem('userName', auth.currentUser?.displayName as string);
+      SessionStorage.setItem('accessToken', token);
+      SessionStorage.setItem(
+        'userName',
+        auth.currentUser?.displayName as string
+      );
+      SessionStorage.setItem('userEmail', auth.currentUser?.email as string);
+      SessionStorage.setItem('userId', auth.currentUser?.uid as string);
     });
 
     // 로그인 후 페이지 이동
@@ -112,7 +119,7 @@ const GoogleLoginBtn = styled.div`
 
   width: 28.4167vw;
   height: 7.7192vh;
-  gap: .5vw;
+  gap: 0.5vw;
 
   border: 2px solid black;
   border-radius: 0.7vw;

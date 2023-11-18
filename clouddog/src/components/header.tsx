@@ -1,7 +1,7 @@
-import styled from 'styled-components';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+import styled from "styled-components";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 const HeaderContainer = styled.div`
   margin-top: 1.75vw;
@@ -57,10 +57,10 @@ const StyledLink = styled.a`
 export default function Header() {
   const router = useRouter();
 
-  const navigateToHome = () => router.push('/');
-  const navigateToArchive = () => router.push('/archive');
-  const navigateToCloud = () => router.push('/cloud');
-  const navigateToProfile = () => router.push('/profile');
+  const navigateToHome = () => router.push("/");
+  const navigateToArchive = () => router.push("/memory/Archive");
+  const navigateToCloud = () => router.push("/cloud/FriendList");
+  const navigateToProfile = () => router.push("/profile");
 
   return (
     <>

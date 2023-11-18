@@ -2,10 +2,22 @@ import Header from '@/components/header';
 import FriendCard from '@/components/FriendCard';
 import styled from 'styled-components';
 
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useState, useEffect } from 'react';
 
 const AddFriedn = () => {
   const [friendEmail, setFriendEmail] = useState<string>('');
+
+  const [myEmail, setMyEmail] = useState<string>('');
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('userEmail')) {
+      setMyEmail(localStorage.getItem('userEmail') as string);
+      setIsAuth(!isAuth);
+    } else {
+      setIsAuth(false);
+    }
+  }, []);
 
   const onChangeFriendEmail = (e: ChangeEvent<HTMLInputElement>) => {
     setFriendEmail(e.target.value);
@@ -14,7 +26,7 @@ const AddFriedn = () => {
   return (
     <TotalContainer>
       <Header />
-      <div>친구 찾기</div>
+      <TitleText>친구 찾기</TitleText>
       <InputContainer>
         <InputBox>
           <FriendEmail
@@ -23,9 +35,12 @@ const AddFriedn = () => {
             value={friendEmail}
             onChange={onChangeFriendEmail}
           />
+          <SerchBtn></SerchBtn>
         </InputBox>
-
-        <input type="text" placeholder="내 이메일" disabled />
+        <InputBoxDisable>
+          <MyEmailInp type="text" placeholder="내 이메일" disabled />
+          <MyEmailTxt>{myEmail}</MyEmailTxt>
+        </InputBoxDisable>
       </InputContainer>
 
       <FriendCard />
@@ -45,7 +60,12 @@ const TotalContainer = styled.div`
   width: calc(100vw - (100vw - scrollbarWidth));
   height: 100vh;
 
-  gap: 10vh;
+  gap: 6vh;
+`;
+
+const TitleText = styled.div`
+  font-size: 2vw;
+  font-weight: bold;
 `;
 
 const InputContainer = styled.div`
@@ -56,6 +76,88 @@ const InputContainer = styled.div`
   gap: 2.3vh;
 `;
 
-const InputBox = styled.div``;
+const InputBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
 
-const FriendEmail = styled.input``;
+  width: 40vw;
+  height: 2vw;
+
+  padding: 1vw;
+
+  border: 1px solid black;
+
+  &:focus-within {
+    border: 2px solid #f1824d;
+    ::placeholder {
+      color: #f1824d;
+    }
+  }
+`;
+
+const FriendEmail = styled.input`
+  all: unset;
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  white-space: nowrap;
+  background: #fff;
+  text-align: left;
+  font-family: Pretendard;
+  font-size: 1.2vw;
+`;
+
+const SerchBtn = styled.div`
+  width: 2vw;
+  height: 2vw;
+
+  border-radius: 50%;
+
+  background-color: #e5e5e5;
+`;
+
+const InputBoxDisable = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+
+  width: 40vw;
+  height: 2vw;
+
+  padding: 1vw;
+
+  border: 1px solid #f1824d;
+
+  background-color: #fef1de;
+`;
+
+const MyEmailInp = styled.input`
+  all: unset;
+  width: 100%;
+  height: 100%;
+
+  overflow: hidden;
+  white-space: nowrap;
+  background: #fef1de;
+  text-align: left;
+
+  &::placeholder {
+    color: #f1824d;
+    font-family: Pretendard;
+    font-size: 1.2vw;
+    font-style: normal;
+    line-height: normal;
+  }
+`;
+
+const MyEmailTxt = styled.div`
+  color: #f1824d;
+  font-family: Pretendard;
+  font-size: 1.2vw;
+  font-style: normal;
+  line-height: normal;
+`;
